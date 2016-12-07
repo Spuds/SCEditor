@@ -2,15 +2,14 @@
 	'use strict';
 
 	$.sceditor.plugins.undo = function () {
-		var base = this;
-		var editor;
-		var charChangedCount = 0;
-		var previousValue;
-
-		var undoLimit  = 50;
-		var redoStates = [];
-		var undoStates = [];
-		var ignoreNextValueChanged = false;
+		var base = this,
+			editor,
+			charChangedCount = 0,
+			previousValue,
+			undoLimit  = 50,
+			redoStates = [],
+			undoStates = [],
+			ignoreNextValueChanged = false;
 
 		/**
 		 * Sets the editor to the specified state.
@@ -35,7 +34,6 @@
 
 			ignoreNextValueChanged = false;
 		};
-
 
 		/**
 		 * Caluclates the number of characters that have changed
@@ -65,7 +63,7 @@
 
 			for (end = length - 1; end >= 0; end--) {
 				if (strA.charAt(end - aLenDiff) !==
-						strB.charAt(end - bLenDiff)) {
+					strB.charAt(end - bLenDiff)) {
 					break;
 				}
 			}
@@ -86,11 +84,25 @@
 			editor.addShortcut('ctrl+z', base.undo);
 			editor.addShortcut('ctrl+shift+z', base.redo);
 			editor.addShortcut('ctrl+y', base.redo);
+
+			// Add the command so our editor buttons show up
+			if (!editor.commands.undo) {
+				editor.commands.undo = {
+					txtExec: base.undo,
+					exec: base.undo,
+					tooltip: 'Undo'
+				};
+				editor.commands.redo = {
+					txtExec: base.redo,
+					exec: base.redo,
+					tooltip: 'Redo'
+				};
+			}
 		};
 
 		base.undo = function () {
-			var state = undoStates.pop();
-			var rawEditorValue = editor.val(null, false);
+			var state = undoStates.pop(),
+				rawEditorValue = editor.val(null, false);
 
 			if (state && !redoStates.length && rawEditorValue === state.value) {
 				state = undoStates.pop();
@@ -129,13 +141,16 @@
 		};
 
 		base.signalReady = function () {
-			var rawValue = editor.val(null, false);
+			var rawValue = editor.val(null, false),
+				caret;
+
+			caret = this.sourceEditorCaret();
 
 			// Store the initial value as the last value
 			previousValue = rawValue;
 
 			undoStates.push({
-				'caret': this.sourceEditorCaret(),
+				'caret': caret,
 				'sourceMode': this.sourceMode(),
 				'value': rawValue
 			});
@@ -159,7 +174,7 @@
 			// If the editor hasn't fully loaded yet,
 			// then the previous value won't be set.
 			if (ignoreNextValueChanged || !previousValue ||
-					previousValue === rawValue) {
+				previousValue === rawValue) {
 				return;
 			}
 
@@ -169,7 +184,7 @@
 
 			if (charChangedCount < 20) {
 				return;
-			// ??
+				// ??
 			} else if (charChangedCount < 50 && !/\s$/g.test(e.rawValue)) {
 				return;
 			}
