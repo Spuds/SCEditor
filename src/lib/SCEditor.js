@@ -348,7 +348,7 @@
 			}
 
 			isRequired = !!$original.attr('required');
-			$original.removeAttr('required');
+			$original.prop('required', false);
 
 			// create the editor
 			initPlugins();
@@ -961,7 +961,7 @@
 			$wysiwygBody[0].contentEditable = !readOnly;
 
 			if (!readOnly) {
-				$sourceEditor.removeAttr('readonly');
+				$sourceEditor.prop('readonly', false);
 			} else {
 				$sourceEditor.attr('readonly', 'readonly');
 			}
