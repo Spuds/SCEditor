@@ -144,7 +144,12 @@
 			var rawValue = editor.val(null, false),
 				caret;
 
-			caret = this.sourceEditorCaret();
+			// Save a call, and a page jump, when the editor is empty
+			if (rawValue === '') {
+				caret = {end: 0, start: 0};
+			} else {
+				caret = this.sourceEditorCaret();
+			}
 
 			// Store the initial value as the last value
 			previousValue = rawValue;
