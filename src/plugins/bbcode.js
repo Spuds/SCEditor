@@ -372,7 +372,6 @@
 			fixNesting,
 			isChildAllowed,
 			removeEmpty,
-			fixChildren,
 			convertToHTML,
 			convertToBBCode,
 			hasTag,
@@ -574,14 +573,6 @@
 			var ret  = parseTokens(base.tokenize(str));
 			var opts = base.opts;
 
-			if (opts.fixInvalidChildren) {
-				fixChildren(ret);
-			}
-
-			if (opts.removeEmptyTags) {
-				removeEmpty(ret);
-			}
-
 			if (opts.fixInvalidNesting) {
 				fixNesting(ret);
 			}
@@ -658,7 +649,7 @@
 				 * Returns the currently open tag or undefined
 				 * @return {TokenizeToken}
 				 */
-				currentOpenTag = function () {
+				currentTag = function () {
 					return last(openTags);
 				},
 				/**
@@ -668,8 +659,8 @@
 				 * @private
 				 */
 				addTag = function (token) {
-					if (currentOpenTag()) {
-						currentOpenTag().children.push(token);
+					if (currentTag()) {
+						currentTag().children.push(token);
 					} else {
 						output.push(token);
 					}
@@ -680,14 +671,37 @@
 				 * @return {Void}
 				 */
 				closesCurrentTag = function (name) {
-					return currentOpenTag() &&
-						(bbcode = base.bbcodes[currentOpenTag().name]) &&
+					return currentTag() &&
+						(bbcode = base.bbcodes[currentTag().name]) &&
 						bbcode.closedBy &&
 						$.inArray(name, bbcode.closedBy) > -1;
 				};
 
 			while ((token = toks.shift())) {
 				next = toks[0];
+
+				/*
+				 * Fixes any invalid children.
+				 *
+				 * If it is an element which isn't allowed as a child of it's
+				 * parent then it will be converted to content of the parent
+				 * element. i.e.
+				 *     [code]Code [b]only[/b] allows text.[/code]
+				 * Will become:
+				 *     <code>Code [b]only[/b] allows text.</code>
+				 * Instead of:
+				 *     <code>Code <b>only</b> allows text.</code>
+				 */
+				// Ignore tags that can't be children
+				if (!isChildAllowed(currentTag(), token)) {
+
+					// exclude closing tags of current tag
+					if (token.type !== TokenTtype.CLOSE || !currentTag() ||
+							token.name !== currentTag().name) {
+						token.name = '#';
+						token.type = TokenType.CONTENT;
+					}
+				}
 
 				switch (token.type) {
 					case TokenType.OPEN:
@@ -705,7 +719,7 @@
 						// list of open tags. If has the closedBy property then
 						// it is closed by other tags so include everything as
 						// it's children until one of those tags is reached.
-						if ((!bbcode || !bbcode.isSelfClosing) &&
+						if ((bbcode && !bbcode.isSelfClosing) &&
 							(bbcode.closedBy ||
 								hasTag(token.name, TokenType.CLOSE, toks))) {
 							openTags.push(token);
@@ -717,17 +731,17 @@
 					case TokenType.CLOSE:
 						// check if this closes the current tag,
 						// e.g. [/list] would close an open [*]
-						if (currentOpenTag() &&
-							token.name !== currentOpenTag().name &&
+						if (currentTag() &&
+							token.name !== currentTag().name &&
 							closesCurrentTag('/' + token.name)) {
 							openTags.pop();
 						}
 
 						// If this is closing the currently open tag just pop
 						// the close tag off the open tags array
-						if (currentOpenTag() &&
-							token.name === currentOpenTag().name) {
-							currentOpenTag().closing = token;
+						if (currentTag() &&
+							token.name === currentTag().name) {
+							currentTag().closing = token;
 							openTags.pop();
 
 						// If this is closing an open tag that is the parent of
@@ -759,6 +773,15 @@
 								cloned.push(clone);
 							}
 
+							// Place block linebreak before cloned tags
+							if (next && next.type === TokenType.NEWLINE) {
+								bbcode = base.bbcodes[token.name];
+								if (bbcode && bbcode.isInline === false) {
+									addTag(next);
+									toks.shift();
+								}
+							}
+
 							// Add the last cloned child to the now current tag
 							// (the parent of the tag which was being closed)
 							addTag(last(cloned));
@@ -785,7 +808,7 @@
 						//     [*]list\nitem[/*]\n[*]list1[/*]
 						// instead of
 						//     [*]list\nitem\n[/*][*]list1[/*]
-						if (currentOpenTag() && next &&
+						if (currentTag() && next &&
 							closesCurrentTag(
 								(next.type === TokenType.CLOSE ? '/' : '') +
 								next.name
@@ -793,8 +816,8 @@
 							// skip if the next tag is the closing tag for
 							// the option tag, i.e. [/*]
 							if (!(next.type === TokenType.CLOSE &&
-								next.name === currentOpenTag().name)) {
-								bbcode = base.bbcodes[currentOpenTag().name];
+								next.name === currentTag().name)) {
+								bbcode = base.bbcodes[currentTag().name];
 
 								if (bbcode && bbcode.breakAfter) {
 									openTags.pop();
@@ -994,7 +1017,7 @@
 					continue;
 				}
 
-				if (!isInline(token) && insideInline) {
+				if (insideInline && !isInline(token)) {
 					// if this is a blocklevel element inside an inline one then
 					// split the parent at the block level element
 					parent = last(parents);
@@ -1003,12 +1026,19 @@
 					parentParentChildren = parents.length > 1 ?
 						parents[parents.length - 2].children : rootArr;
 
+					// If parent inline is allowed inside this tag, clone it and
+					// wrap this tags children in it.
+					if (isChildAllowed(token, parent)) {
+						var clone = parent.clone();
+						clone.children = token.children;
+						token.children = [clone];
+					}
+
 					parentIndex = $.inArray(parent, parentParentChildren);
 					if (parentIndex > -1) {
 						// remove the block level token from the right side of
 						// the split inline element
-						right.children.splice(
-							$.inArray(token, right.children), 1);
+						right.children.splice(0, 1);
 
 						// insert the block level token and the right side after
 						// the left side of the inline token
@@ -1033,58 +1063,6 @@
 				);
 
 				parents.pop(token);
-			}
-		};
-
-		/**
-		 * Fixes any invalid children.
-		 *
-		 * If it is an element which isn't allowed as a child of it's parent
-		 * then it will be converted to content of the parent element. i.e.
-		 *     [code]Code [b]only[/b] allows text.[/code]
-		 * Will become:
-		 *     <code>Code [b]only[/b] allows text.</code>
-		 * Instead of:
-		 *     <code>Code <b>only</b> allows text.</code>
-		 *
-		 * @param {Array} children
-		 * @param {Array} [parent] Null if there is no parents
-		 * @private
-		 */
-		fixChildren = function (children, parent) {
-			var	token, args;
-
-			var i = children.length;
-			while (i--) {
-				if (!(token = children[i])) {
-					continue;
-				}
-
-				if (!isChildAllowed(parent, token)) {
-					// if it is not then convert it to text and see if it
-					// is allowed
-					token.name = null;
-					token.type = TokenType.CONTENT;
-
-					if (isChildAllowed(parent, token)) {
-						args = [i + 1, 0].concat(token.children);
-
-						if (token.closing) {
-							token.closing.name = null;
-							token.closing.type = TokenType.CONTENT;
-							args.push(token.closing);
-						}
-
-						i += args.length - 1;
-						Array.prototype.splice.apply(children, args);
-					} else {
-						parent.children.splice(i, 1);
-					}
-				}
-
-				if (token.type === TokenType.OPEN) {
-					fixChildren(token.children, token);
-				}
 			}
 		};
 
