@@ -2939,7 +2939,7 @@
 
 				// Fix FF bug where it shows the cursor in the wrong place
 				// if the editor hasn't had focus before. See issue #393
-				if (!currentSelection && !rangeHelper.hasSelection()) {
+				if (!currentSelection) {
 					autofocus();
 				}
 
@@ -2960,13 +2960,12 @@
 				wysiwygEditor.contentWindow.focus();
 				$wysiwygBody[0].focus();
 
-				// Needed for IE < 9
+				// Needed for IE
 				if (lastRange) {
 					rangeHelper.selectRange(lastRange);
 
-					// remove the stored range after being set.
-					// If the editor loses focus it should be
-					// saved again.
+					// Remove the stored range after being set.
+					// If the editor loses focus it should be saved again.
 					lastRange = null;
 				}
 			} else {
