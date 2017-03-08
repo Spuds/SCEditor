@@ -231,6 +231,7 @@ define([
 			return expect(0);
 		}
 
+		sceditor.focus();
 		var iframe = sceditor.getContentAreaContainer().get(0);
 		var body   = sceditor.getBody().get(0);
 		var range  = rangy.createRange(body.ownerDocument);
@@ -257,6 +258,7 @@ define([
 			return expect(0);
 		}
 
+		sceditor.focus();
 		var iframe = sceditor.getContentAreaContainer().get(0);
 		var body   = sceditor.getBody().get(0);
 		var range  = rangy.createRange(body.ownerDocument);
@@ -284,6 +286,7 @@ define([
 			return expect(0);
 		}
 
+		sceditor.focus();
 		var iframe = sceditor.getContentAreaContainer().get(0);
 		var body   = sceditor.getBody().get(0);
 		var range  = rangy.createRange(body.ownerDocument);
