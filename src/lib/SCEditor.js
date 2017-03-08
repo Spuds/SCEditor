@@ -2608,9 +2608,10 @@
 				$closestTag = $(currentBlockNode)
 					.closest(DUPLICATED_TAGS + ',' + LIST_TAGS)
 					.first();
- 
-				// "Fix" (cludge) for blocklevel elements being duplicated in some
-				// browsers when enter is pressed instead of inserting a newline
+
+				// "Fix" (cludge) for blocklevel elements being duplicated in
+				// some browsers when enter is pressed instead of inserting a
+				// newline
 				if ($closestTag.length && !$closestTag.is(LIST_TAGS)) {
 					lastRange = null;
 
@@ -2624,7 +2625,7 @@
 						brParent    = br.parentNode;
 						lastChild = brParent.lastChild;
 
-						// Sometimes an empty next node is created after the <br>
+						// Sometimes an empty next node is created after the<br>
 						if (lastChild && lastChild.nodeType === 3 &&
 							lastChild.nodeValue === '') {
 							brParent.removeChild(lastChild);

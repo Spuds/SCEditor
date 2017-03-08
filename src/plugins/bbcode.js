@@ -696,7 +696,7 @@
 				if (!isChildAllowed(currentTag(), token)) {
 
 					// exclude closing tags of current tag
-					if (token.type !== TokenTtype.CLOSE || !currentTag() ||
+					if (token.type !== TokenType.CLOSE || !currentTag() ||
 							token.name !== currentTag().name) {
 						token.name = '#';
 						token.type = TokenType.CONTENT;
