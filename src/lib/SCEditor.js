@@ -2603,45 +2603,46 @@
 
 			base.closeDropDown();
 
-			$closestTag = $(currentBlockNode)
-				.closest(DUPLICATED_TAGS + ',' + LIST_TAGS)
-				.first();
+			// 13 = enter key
+			if (e.which === 13) {
+				$closestTag = $(currentBlockNode)
+					.closest(DUPLICATED_TAGS + ',' + LIST_TAGS)
+					.first();
+ 
+				// "Fix" (cludge) for blocklevel elements being duplicated in some
+				// browsers when enter is pressed instead of inserting a newline
+				if ($closestTag.length && !$closestTag.is(LIST_TAGS)) {
+					lastRange = null;
 
-			// "Fix" (OK it's a cludge) for blocklevel elements being
-			// duplicated in some browsers when enter is pressed instead
-			// of inserting a newline
-			if (e.which === 13 && $closestTag.length &&
-					!$closestTag.is(LIST_TAGS)) {
-				lastRange = null;
+					br = $wysiwygDoc[0].createElement('br');
+					rangeHelper.insertNode(br);
 
-				br = $wysiwygDoc[0].createElement('br');
-				rangeHelper.insertNode(br);
-
-				// Last <br> of a block will be collapsed unless it is
-				// IE < 11 so need to make sure the <br> that was inserted
-				// isn't the last node of a block.
-				if (!IE_BR_FIX) {
-					brParent    = br.parentNode;
-					lastChild = brParent.lastChild;
-
-					// Sometimes an empty next node is created after the <br>
-					if (lastChild && lastChild.nodeType === 3 &&
-						lastChild.nodeValue === '') {
-						brParent.removeChild(lastChild);
+					// Last <br> of a block will be collapsed unless it is
+					// IE < 11 so need to make sure the <br> that was inserted
+					// isn't the last node of a block.
+					if (!IE_BR_FIX) {
+						brParent    = br.parentNode;
 						lastChild = brParent.lastChild;
+
+						// Sometimes an empty next node is created after the <br>
+						if (lastChild && lastChild.nodeType === 3 &&
+							lastChild.nodeValue === '') {
+							brParent.removeChild(lastChild);
+							lastChild = brParent.lastChild;
+						}
+
+						// If this is the last BR of a block and the previous
+						// sibling is inline then will need an extra BR. This
+						// is needed because the last BR of a block will be
+						// collapsed. Fixes issue #248
+						if (!dom.isInline(brParent, true) && lastChild === br &&
+							dom.isInline(br.previousSibling)) {
+							rangeHelper.insertHTML('<br>');
+						}
 					}
 
-					// If this is the last BR of a block and the previous
-					// sibling is inline then will need an extra BR. This
-					// is needed because the last BR of a block will be
-					// collapsed. Fixes issue #248
-					if (!dom.isInline(brParent, true) && lastChild === br &&
-						dom.isInline(br.previousSibling)) {
-						rangeHelper.insertHTML('<br>');
-					}
+					e.preventDefault();
 				}
-
-				return false;
 			}
 		};
 
