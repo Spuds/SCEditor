@@ -292,11 +292,9 @@
 		/**
 		 * Clones this token
 		 *
-		 * @param  {Bool} includeChildren If to include the children in
-		 *                                the clone. Defaults to false.
 		 * @return {TokenizeToken}
 		 */
-		clone: function (includeChildren) {
+		clone: function () {
 			var base = this;
 
 			return new TokenizeToken(
@@ -304,44 +302,32 @@
 				base.name,
 				base.val,
 				base.attrs,
-				includeChildren ? base.children : [],
+				[],
 				base.closing ? base.closing.clone() : null
 			);
 		},
 		/**
 		 * Splits this token at the specified child
 		 *
-		 * @param  {TokenizeToken|Int} splitAt The child to split at or the
-		 *                                     index of the child
+		 * @param  {TokenizeToken} splitAt The child to split at
 		 * @return {TokenizeToken} The right half of the split token or
 		 *                         null if failed
 		 */
 		splitAt: function (splitAt) {
 			var	clone;
-			var base          = this;
-			var splitAtLength = 0;
-			var childrenLen   = base.children.length;
+			var base         = this;
+			var offsetLength = 0;
+			var offset       = base.children.indexOf(splitAt);
 
-			if (typeof splitAt !== 'number') {
-				splitAt = $.inArray(splitAt, base.children);
-			}
-
-			if (splitAt < 0 || splitAt > childrenLen) {
+			if (offset < 0) {
 				return null;
 			}
 
 			// Work out how many items are on the right side of the split
 			// to pass to splice()
-			while (childrenLen--) {
-				if (childrenLen >= splitAt) {
-					splitAtLength++;
-				} else {
-					childrenLen = 0;
-				}
-			}
-
+			offsetLength   = base.children.length - offset;
 			clone          = base.clone();
-			clone.children = base.children.splice(splitAt, splitAtLength);
+			clone.children = base.children.splice(offset, offsetLength);
 			return clone;
 		}
 	};
@@ -808,8 +794,7 @@
 						//     [*]list\nitem[/*]\n[*]list1[/*]
 						// instead of
 						//     [*]list\nitem\n[/*][*]list1[/*]
-						if (currentTag() && next &&
-							closesCurrentTag(
+						if (currentTag() && next && closesCurrentTag(
 								(next.type === TokenType.CLOSE ? '/' : '') +
 								next.name
 							)) {
@@ -1155,11 +1140,10 @@
 				}
 
 				if (token.type === TokenType.OPEN) {
-					lastChild      =
-						token.children[token.children.length - 1] || {};
-					bbcode         = base.bbcodes[token.name];
+					lastChild = token.children[token.children.length - 1] || {};
+					bbcode = base.bbcodes[token.name];
 					needsBlockWrap = isRoot && isInline(bbcode);
-					content        = convertToHTML(token.children, false);
+					content = convertToHTML(token.children, false);
 
 					if (bbcode && bbcode.html) {
 						// Only add a line break to the end if this is
