@@ -200,6 +200,19 @@ define([
 		assert.equal(result, 'lots \nof junk j');
 	});
 
+	test('Should remove empty text nodes', function (assert) {
+		var quote = document.createElement('blockquote');
+		quote.appendChild(document.createTextNode('test'));
+
+		var root = document.createElement('div');
+		root.appendChild(document.createTextNode(''));
+		root.appendChild(quote);
+		root.appendChild(document.createTextNode('test'));
+
+		var result = this.plugin.signalToSource('', root);
+
+		assert.equal(result, '[quote]test[/quote]\ntest');
+	});
 
 	test('New line handling', function (assert) {
 		assert.equal(

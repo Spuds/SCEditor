@@ -305,7 +305,7 @@ define(function (require) {
 				}
 
 				// 3 = textnode
-				if (nodeType === 3 && nodeValue) {
+				if (nodeType === 3) {
 					next            = getSibling(node);
 					previous        = getSibling(node, true);
 					trimStart       = false;
