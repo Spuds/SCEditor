@@ -57,7 +57,7 @@ define(function (require) {
 
 		image:
 			'<div><label for="link">{url}</label> ' +
-				'<input type="text" id="image" placeholder="http://" /></div>' +
+				'<input type="text" id="image" placeholder="https://" /></div>' +
 			'<div><label for="width">{width}</label> ' +
 				'<input type="text" id="width" size="2" /></div>' +
 			'<div><label for="height">{height}</label> ' +
@@ -75,7 +75,7 @@ define(function (require) {
 
 		link:
 			'<div><label for="link">{url}</label> ' +
-				'<input type="text" id="link" placeholder="http://" /></div>' +
+				'<input type="text" id="link" placeholder="https://" /></div>' +
 			'<div><label for="des">{desc}</label> ' +
 				'<input type="text" id="des" /></div>' +
 			'<div><input type="button" class="button" value="{ins}" /></div>',
