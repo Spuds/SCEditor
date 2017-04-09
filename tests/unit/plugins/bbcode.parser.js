@@ -394,7 +394,7 @@ define([
 			this.parser.toBBCode(
 				'[quote=te=st test=ex=tra]hi[/quote]'
 			),
-			'[quote="te=st" test="ex=tra"]hi[/quote]\n',
+			'[quote=te=st test=ex=tra]hi[/quote]\n',
 			'Default attribute with equal'
 		);
 
@@ -568,6 +568,14 @@ define([
 				'test=\'la\'' +
 			']asd[/quote]\n',
 			'Multi-Attribute test'
+		);
+
+		assert.equal(
+			this.parser.toBBCode(
+				'[quote=te=st test=ex=tra]hi[/quote]'
+			),
+			'[quote=\'te=st\' test=\'ex=tra\']hi[/quote]\n',
+			'Default attribute with equal'
 		);
 
 		// Reset [quote]'s default quoteType
