@@ -464,7 +464,7 @@
 		 * @private
 		 */
 		initEditor = function (startInSourceMode) {
-			var doc, tabIndex;
+			var doc;
 
 			$sourceEditor  = $('<textarea></textarea>');
 			$wysiwygEditor = $(
@@ -529,7 +529,7 @@
 				}
 			}
 
-			tabIndex = $original.attr('tabindex');
+			var tabIndex = $original.attr('tabindex');
 			$sourceEditor.attr('tabindex', tabIndex);
 			$wysiwygEditor.attr('tabindex', tabIndex);
 
@@ -578,7 +578,7 @@
 			var compositionEvents = 'compositionstart compositionend';
 			var eventsToForward = 'keydown keyup keypress ' +
 				'focus blur contextmenu';
-			var checkSelectionEvents = 'onselectionchange' in $wysiwygBody ?
+			var checkSelectionEvents = 'onselectionchange' in $wysiwygDoc ?
 				'selectionchange' :
 				'keyup focus blur contextmenu mouseup touchend click';
 
@@ -2469,7 +2469,7 @@
 			isSelectionCheckPending = true;
 
 			// Don't do limit checking if browser supports the Selection API
-			if ('onselectionchange' in $wysiwygBody) {
+			if ('onselectionchange' in $wysiwygDoc) {
 				check();
 			} else {
 				setTimeout(check, 100);
@@ -3621,7 +3621,7 @@
 
 			// Don't need to save the range if sceditor-start-marker
 			// is present as the range is already saved
-			saveRange = saveRange !== false && hasSelection &&
+			saveRange = saveRange !== false &&
 				!$wysiwygDoc[0].getElementById('sceditor-start-marker');
 
 			// Clear any current timeout as it's now been triggered
