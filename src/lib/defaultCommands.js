@@ -400,7 +400,6 @@ define(function (require) {
 
 		// START_COMMAND: Table
 		table: {
-			forceNewLineAfter: ['table'],
 			exec: function (caller) {
 				var	editor  = this,
 					content = _tmpl('table', {
@@ -453,7 +452,6 @@ define(function (require) {
 
 		// START_COMMAND: Code
 		code: {
-			forceNewLineAfter: ['code'],
 			exec: function () {
 				this.wysiwygEditorInsertHtml(
 					'<code>',
@@ -624,7 +622,6 @@ define(function (require) {
 
 		// START_COMMAND: Quote
 		quote: {
-			forceNewLineAfter: ['blockquote'],
 			exec: function (caller, html, author) {
 				var	before = '<blockquote>',
 					end    = '</blockquote>';
