@@ -288,7 +288,6 @@
 			initCommands,
 			initResize,
 			initEmoticons,
-			getWysiwygDoc,
 			handlePasteEvt,
 			handlePasteData,
 			handleKeyDown,
@@ -481,7 +480,7 @@
 				options.height || $original.height()
 			);
 
-			doc = getWysiwygDoc();
+			doc = wysiwygEditor.contentDocument;
 			doc.open();
 			doc.write(_tmpl('html', {
 				// Add IE version class to the HTML element so can apply
@@ -1643,24 +1642,6 @@
 				base.focus();
 			}
 		};
-
-		/**
-		 * Gets the WYSIWYG editors document
-		 * @private
-		 */
-		getWysiwygDoc = function () {
-			if (wysiwygEditor.contentDocument) {
-				return wysiwygEditor.contentDocument;
-			}
-
-			if (wysiwygEditor.contentWindow &&
-				wysiwygEditor.contentWindow.document) {
-				return wysiwygEditor.contentWindow.document;
-			}
-
-			return wysiwygEditor.document;
-		};
-
 
 		/**
 		 * <p>Inserts HTML into WYSIWYG editor.</p>
@@ -2848,9 +2829,7 @@
 		 * @since 1.4.1
 		 * @see bind
 		 */
-		base.unbind = function (
-			events, handler, excludeWysiwyg, excludeSource
-		) {
+		base.unbind = function (events, handler, excludeWysiwyg, excludeSource) {
 			events = events.split(' ');
 
 			var i  = events.length;
