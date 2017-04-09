@@ -1841,33 +1841,16 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.sourceEditorCaret = function (position) {
-			var range,
-				ret = {};
+			var ret = {};
 
 			sourceEditor.focus();
 
-			// All browsers except IE <= 8
-			if (typeof sourceEditor.selectionStart !== 'undefined') {
-				if (position) {
-					sourceEditor.selectionStart = position.start;
-					sourceEditor.selectionEnd   = position.end;
-				} else {
-					ret.start = sourceEditor.selectionStart;
-					ret.end   = sourceEditor.selectionEnd;
-				}
-
-			// IE8 and below
+			if (position) {
+				sourceEditor.selectionStart = position.start;
+				sourceEditor.selectionEnd   = position.end;
 			} else {
-				range = globalDoc.selection.createRange();
-
-				if (position) {
-					range.moveEnd('character', position.end);
-					range.moveStart('character', position.start);
-					range.select();
-				} else {
-					ret.start = range.Start;
-					ret.end   = range.End;
-				}
+				ret.start = sourceEditor.selectionStart;
+				ret.end   = sourceEditor.selectionEnd;
 			}
 
 			return position ? this : ret;
