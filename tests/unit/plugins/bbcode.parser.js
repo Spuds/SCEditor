@@ -50,6 +50,24 @@ define([
 			'[size=3]test[/size][code]test[/code][size=3]test[/size]',
 			'Preserve attributes'
 		);
+
+		assert.equal(
+			this.parser.toBBCode(
+				'[ul]' +
+				'[color=#444444]' +
+				'[li]test[/li]\n' +
+				'[li]test[/li]\n' +
+				'[li]test[/li]\n' +
+				'[/color]' +
+				'[/ul]'
+			),
+			'[ul]\n' +
+			'[li][color=#444444]test[/color][/li]\n' +
+			'[li][color=#444444]test[/color][/li]\n' +
+			'[li][color=#444444]test[/color][/li]\n' +
+			'[/ul]\n',
+			'Move newlines'
+		);
 	});
 
 
