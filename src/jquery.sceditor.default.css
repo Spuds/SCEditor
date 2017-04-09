@@ -24,6 +24,12 @@ body {
 	word-wrap: break-word;
 }
 
+body.placeholder::before {
+	content: attr(placeholder);
+	color: #555555;
+	font-style: italic;
+}
+
 ul, ol {
 	margin-top: 0;
 	margin-bottom: 0;
