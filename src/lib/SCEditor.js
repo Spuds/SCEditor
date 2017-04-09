@@ -23,6 +23,32 @@
 	var IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
 
 	/**
+	 * Wrap inlines that are in the root in paragraphs.
+	 *
+	 * @param {HTMLBodyElement} body
+	 * @param {Document} doc
+	 * @private
+	 */
+	function wrapInlines(body, doc) {
+		var wrapper;
+
+		dom.traverse(body, function (node) {
+			if (dom.isInline(node, true)) {
+				if (!wrapper) {
+					wrapper = doc[0].createElement('p');
+					node.insertBefore(wrapper);
+				}
+
+				if (node.nodeType !== 3 || node.nodeValue !== '') {
+					node.appendChild(wrapper);
+				}
+			} else {
+				wrapper = null;
+			}
+		}, false, true);
+	};
+
+	/**
 	 * SCEditor - A lightweight WYSIWYG editor
 	 *
 	 * @param {Element} el The textarea to be converted
@@ -105,6 +131,18 @@
 		var lastRange;
 
 		/**
+		 * If the user is currently composing text via IME
+		 * @type {boolean}
+		 */
+		var isComposing;
+
+		/**
+		 * Timer for valueChanged key handler
+		 * @type {number}
+		 */
+		var valueChangedKeyUpTimer;
+
+		/**
 		 * The editors locale
 		 *
 		 * @private
@@ -126,14 +164,6 @@
 		 * @private
 		 */
 		var rangeHelper;
-
-		/**
-		 * Tags which require the new line fix
-		 *
-		 * @type {Array}
-		 * @private
-		 */
-		var requireNewLineFix = [];
 
 		/**
 		 * An array of button state handlers
@@ -277,7 +307,6 @@
 			initToolBar,
 			initOptions,
 			initEvents,
-			initCommands,
 			initResize,
 			initEmoticons,
 			handlePasteEvt,
@@ -287,6 +316,7 @@
 			handleKeyPress,
 			handleFormReset,
 			handleMouseDown,
+			handleComposition,
 			handleEvent,
 			handleDocumentClick,
 			handleWindowResize,
@@ -362,7 +392,6 @@
 			initEmoticons();
 			initToolBar();
 			initEditor(!!options.startInSourceMode);
-			initCommands();
 			initOptions();
 			initEvents();
 
@@ -382,6 +411,7 @@
 				}
 
 				autoExpand();
+				appendNewLine();
 
 				// Page width might have changed after CSS is loaded so
 				// call handleWindowResize to update any % based dimensions
@@ -545,12 +575,12 @@
 		 * @private
 		 */
 		initEvents = function () {
-			var CHECK_SELECTION_EVENTS = IE_VER ?
+			var compositionEvents = 'compositionstart compositionend';
+			var eventsToForward = 'keydown keyup keypress ' +
+				'focus blur contextmenu';
+			var checkSelectionEvents = 'onselectionchange' in $wysiwygBody ?
 				'selectionchange' :
 				'keyup focus blur contextmenu mouseup touchend click';
-
-			var EVENTS_TO_FORWARD = 'keydown keyup keypress ' +
-				'focus blur contextmenu';
 
 			$globalDoc.click(handleDocumentClick);
 
@@ -568,8 +598,9 @@
 				.blur(valueChangedBlur)
 				.keyup(valueChangedKeyUp)
 				.on('paste', handlePasteEvt)
-				.on(CHECK_SELECTION_EVENTS, checkSelectionChanged)
-				.on(EVENTS_TO_FORWARD, handleEvent);
+				.on(compositionEvents, handleComposition)
+				.on(checkSelectionEvents, checkSelectionChanged)
+				.on(eventsToForward, handleEvent);
 
 			if (options.emoticonsCompat && globalWin.getSelection) {
 				$wysiwygBody.keyup(emoticonsCheckWhitespace);
@@ -579,12 +610,13 @@
 				.blur(valueChangedBlur)
 				.keyup(valueChangedKeyUp)
 				.keydown(handleKeyDown)
-				.on(EVENTS_TO_FORWARD, handleEvent);
+				.on(compositionEvents, handleComposition)
+				.on(eventsToForward, handleEvent);
 
 			$wysiwygDoc
 				.mousedown(handleMouseDown)
 				.blur(valueChangedBlur)
-				.on(CHECK_SELECTION_EVENTS, checkSelectionChanged)
+				.on(checkSelectionEvents, checkSelectionChanged)
 				.on('beforedeactivate keyup mouseup', saveRange)
 				.keyup(appendNewLine)
 				.focus(function () {
@@ -680,24 +712,6 @@
 
 			// Append the toolbar to the toolbarContainer option if given
 			$(options.toolbarContainer || $editorContainer).append($toolbar);
-		};
-
-		/**
-		 * Creates an array of all the key press functions
-		 * like emoticons, ect.
-		 * @private
-		 */
-		initCommands = function () {
-			$.each(base.commands, function (name, cmd) {
-				if (cmd.forceNewLineAfter && $.isArray(cmd.forceNewLineAfter)) {
-					requireNewLineFix = $.merge(
-						requireNewLineFix,
-						cmd.forceNewLineAfter
-					);
-				}
-			});
-
-			appendNewLine();
 		};
 
 		/**
@@ -2419,6 +2433,29 @@
 				// before the timeout had finished
 				if (rangeHelper && !rangeHelper.compare(currentSelection)) {
 					currentSelection = rangeHelper.cloneSelected();
+
+					// If the selection is in an inline wrap it in a block.
+					// Fixes #331
+					if (currentSelection && currentSelection.collapsed) {
+						var parent = currentSelection.startContainer;
+						var offset = currentSelection.startOffset;
+
+						// Handle if selection is placed before/after an element
+						if (offset && parent.nodeType !== 3) {
+							parent = parent.childNodes[offset];
+						}
+
+						while (parent && parent.parentNode !== $wysiwygBody) {
+							parent = parent.parentNode;
+						}
+
+						if (dom.isInline(parent, true)) {
+							rangeHelper.saveRange();
+							wrapInlines($wysiwygBody, $wysiwygDoc);
+							rangeHelper.restoreRange();
+						}
+					}
+
 					$editorContainer.trigger($.Event('selectionchanged'));
 				}
 
@@ -2431,9 +2468,8 @@
 
 			isSelectionCheckPending = true;
 
-			// In IE, this is only called on the selectionchange event so no
-			// need to limit checking as it should always be valid to do.
-			if (IE_VER) {
+			// Don't do limit checking if browser supports the Selection API
+			if ('onselectionchange' in $wysiwygBody) {
 				check();
 			} else {
 				setTimeout(check, 100);
@@ -2545,13 +2581,6 @@
 		 * @private
 		 */
 		handleKeyPress = function (e) {
-			var	$closestTag, br, brParent, lastChild;
-
-// TODO: improve this so isn't set list, probably should just use
-// dom.hasStyling to all block parents and if one does insert a br
-			var DUPLICATED_TAGS = 'code,blockquote,pre';
-			var LIST_TAGS = 'li,ul,ol';
-
 			// FF bug: https://bugzilla.mozilla.org/show_bug.cgi?id=501496
 			if (e.originalEvent.defaultPrevented) {
 				return;
@@ -2561,38 +2590,38 @@
 
 			// 13 = enter key
 			if (e.which === 13) {
-				$closestTag = $(currentBlockNode)
-					.closest(DUPLICATED_TAGS + ',' + LIST_TAGS)
-					.first();
+				var LIST_TAGS = 'li,ul,ol';
+				var $currentTag = $(currentBlockNode);
 
 				// "Fix" (cludge) for blocklevel elements being duplicated in
 				// some browsers when enter is pressed instead of inserting a
 				// newline
-				if ($closestTag.length && !$closestTag.is(LIST_TAGS)) {
+				if ($currentTag.length &&
+					!$currentTag.is(LIST_TAGS)) {
 					lastRange = null;
 
-					br = $wysiwygDoc[0].createElement('br');
+					var br = $wysiwygDoc[0].createElement('br');
 					rangeHelper.insertNode(br);
 
 					// Last <br> of a block will be collapsed unless it is
 					// IE < 11 so need to make sure the <br> that was inserted
 					// isn't the last node of a block.
 					if (!IE_BR_FIX) {
-						brParent    = br.parentNode;
-						lastChild = brParent.lastChild;
+						var parent    = br.parentNode;
+						var lastChild = parent.lastChild;
 
 						// Sometimes an empty next node is created after the<br>
 						if (lastChild && lastChild.nodeType === 3 &&
 							lastChild.nodeValue === '') {
-							brParent.removeChild(lastChild);
-							lastChild = brParent.lastChild;
+							parent.removeChild(lastChild);
+							lastChild = parent.lastChild;
 						}
 
 						// If this is the last BR of a block and the previous
 						// sibling is inline then will need an extra BR. This
 						// is needed because the last BR of a block will be
 						// collapsed. Fixes issue #248
-						if (!dom.isInline(brParent, true) && lastChild === br &&
+						if (!dom.isInline(parent, true) && lastChild === br &&
 							dom.isInline(br.previousSibling)) {
 							rangeHelper.insertHTML('<br>');
 						}
@@ -2613,31 +2642,34 @@
 		 * @private
 		 */
 		appendNewLine = function () {
-			var name, requiresNewLine, paragraph,
-				body = $wysiwygBody[0];
+			var name,
+				wysiwygBody = $wysiwygBody[0];
 
-			dom.rTraverse(body, function (node) {
+			// Check all nodes in reverse until either add a new line
+			// or reach a non-empty textnode or BR at which point can
+			// stop checking.
+			dom.rTraverse(wysiwygBody, function (node) {
 				name = node.nodeName.toLowerCase();
-// TODO: Replace requireNewLineFix with just a block level fix for any
-// block that has styling and any block that isn't a plain <p> or <div>
-				if ($.inArray(name, requireNewLineFix) > -1) {
-					requiresNewLine = true;
-				}
-// TODO: tidy this up
-				// find the last non-empty text node or line break.
-				if ((node.nodeType === 3 && !/^\s*$/.test(node.nodeValue)) ||
-					name === 'br' || (IE_BR_FIX && !node.firstChild &&
-					!dom.isInline(node, false))) {
 
-					// this is the last text or br node, if its in a code or
-					// quote tag then add a newline to the end of the editor
-					if (requiresNewLine) {
-						paragraph = $wysiwygDoc[0].createElement('p');
+				// Last block, add new line after if has styling
+				if (node.nodeType === 1 &&
+					!/inline/.test(dom.getStyle(node, 'display'))) {
+
+					// Add line break after if has styling
+					if ($(node).hasClass('sceditor-nlf') &&
+						dom.hasStyling(node)) {
+						var paragraph = $wysiwygDoc[0].createElement('p');
 						paragraph.className = 'sceditor-nlf';
 						paragraph.innerHTML = !IE_BR_FIX ? '<br />' : '';
-						body.appendChild(paragraph);
+						wysiwygBody.appendChild(paragraph);
+						return false;
 					}
+				}
 
+				// Last non-empty text node or line break.
+				// No need to add line-break after them
+				if ((node.nodeType === 3 && !/^\s*$/.test(node.nodeValue)) ||
+					name === 'br') {
 					return false;
 				}
 			});
@@ -2804,7 +2836,7 @@
 		 * @since 1.4.1
 		 * @see bind
 		 */
-		base.unbind = function (events, handler, excludeWysiwyg, excludeSource) {
+		base.unbind = function (events,handler,excludeWysiwyg,excludeSource) {
 			events = events.split(' ');
 
 			var i  = events.length;
@@ -3583,15 +3615,19 @@
 				sourceMode   = base.sourceMode(),
 				hasSelection = !sourceMode && rangeHelper.hasSelection();
 
+			// Composition end isn't guaranteed to fire but must have
+			// ended when triggerValueChanged() is called so reset it
+			isComposing = false;
+
 			// Don't need to save the range if sceditor-start-marker
 			// is present as the range is already saved
-			saveRange = saveRange !== false &&
+			saveRange = saveRange !== false && hasSelection &&
 				!$wysiwygDoc[0].getElementById('sceditor-start-marker');
 
 			// Clear any current timeout as it's now been triggered
-			if (valueChangedKeyUp.timer) {
-				clearTimeout(valueChangedKeyUp.timer);
-				valueChangedKeyUp.timer = false;
+			if (valueChangedKeyUpTimer) {
+				clearTimeout(valueChangedKeyUpTimer);
+				valueChangedKeyUpTimer = false;
 			}
 
 			if (hasSelection && saveRange) {
@@ -3603,8 +3639,8 @@
 				$wysiwygBody.html();
 
 			// Only trigger if something has actually changed.
-			if (currentHtml !== triggerValueChanged.lastHtmlValue) {
-				triggerValueChanged.lastHtmlValue = currentHtml;
+			if (currentHtml !== triggerValueChanged.lastVal) {
+				triggerValueChanged.lastVal = currentHtml;
 
 				$editorContainer.trigger($.Event('valuechanged', {
 					rawValue: sourceMode ? base.val() : currentHtml
@@ -3621,7 +3657,7 @@
 		 * @private
 		 */
 		valueChangedBlur = function () {
-			if (valueChangedKeyUp.timer) {
+			if (valueChangedKeyUpTimer) {
 				triggerValueChanged();
 			}
 		};
@@ -3639,36 +3675,50 @@
 
 			valueChangedKeyUp.lastChar = which;
 
+			if (isComposing) {
+				return;
+			}
+
 			// 13 = return & 32 = space
 			if (which === 13 || which === 32) {
 				if (!lastWasSpace) {
 					triggerValueChanged();
 				} else {
-					valueChangedKeyUp.triggerNextChar = true;
+					valueChangedKeyUp.triggerNext = true;
 				}
 			// 8 = backspace & 46 = del
 			} else if (which === 8 || which === 46) {
 				if (!lastWasDelete) {
 					triggerValueChanged();
 				} else {
-					valueChangedKeyUp.triggerNextChar = true;
+					valueChangedKeyUp.triggerNext = true;
 				}
-			} else if (valueChangedKeyUp.triggerNextChar) {
+			} else if (valueChangedKeyUp.triggerNext) {
 				triggerValueChanged();
-				valueChangedKeyUp.triggerNextChar = false;
+				valueChangedKeyUp.triggerNext = false;
 			}
 
 			// Clear the previous timeout and set a new one.
-			if (valueChangedKeyUp.timer) {
-				clearTimeout(valueChangedKeyUp.timer);
+			if (valueChangedKeyUpTimer) {
+				clearTimeout(valueChangedKeyUpTimer);
 			}
 
 			// Trigger the event 1.5s after the last keypress if space
 			// isn't pressed. This might need to be lowered, will need
 			// to look into what the slowest average Chars Per Min is.
-			valueChangedKeyUp.timer = setTimeout(function () {
-				triggerValueChanged();
+			valueChangedKeyUpTimer = setTimeout(function () {
+				if (!isComposing) {
+					triggerValueChanged();
+				}
 			}, 1500);
+		};
+
+		handleComposition = function (e) {
+			isComposing = /start/i.test(e.type);
+
+			if (!isComposing) {
+				triggerValueChanged();
+			}
 		};
 
 		autoUpdate = function () {
