@@ -245,14 +245,6 @@
 		var toolbarButtons = {};
 
 		/**
-		 * If the current autoUpdate action is canceled.
-		 *
-		 * @type {Boolean}
-		 * @private
-		 */
-		var autoUpdateCanceled;
-
-		/**
 		 * Last scroll position before maximizing so
 		 * it can be restored when finished.
 		 *
@@ -3680,11 +3672,7 @@
 		};
 
 		autoUpdate = function () {
-			if (!autoUpdateCanceled) {
-				base.updateOriginal();
-			}
-
-			autoUpdateCanceled = false;
+			base.updateOriginal();
 		};
 
 		// run the initializer
