@@ -280,7 +280,7 @@
 		base.type     = type;
 		base.name     = name;
 		base.val      = val;
-		base.attrs    = attrs || {};
+		base.attrs    = $.extend({}, attrs);
 		base.children = children || [];
 		base.closing  = closing || null;
 	};
