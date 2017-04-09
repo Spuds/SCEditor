@@ -537,6 +537,14 @@
 
 			// load any textarea value into the editor
 			base.val($original.hide().val());
+
+			var placeholder = options.placeholder ||
+				$original.attr('placeholder');
+
+			if (placeholder) {
+				$sourceEditor.placeholder = placeholder;
+				$wysiwygBody.attr('placeholder', placeholder);
+			}
 		};
 
 		/**
@@ -606,6 +614,16 @@
 				$wysiwygBody.keyup(emoticonsCheckWhitespace);
 			}
 
+			$wysiwygBody.on('blur', function () {
+				if (!base.val()) {
+					$wysiwygBody.addClass('placeholder');
+				}
+			});
+
+			$wysiwygBody.on('focus', function () {
+				$wysiwygBody.removeClass('placeholder');
+			});
+
 			$sourceEditor
 				.blur(valueChangedBlur)
 				.keyup(valueChangedKeyUp)
@@ -615,7 +633,6 @@
 
 			$wysiwygDoc
 				.mousedown(handleMouseDown)
-				.blur(valueChangedBlur)
 				.on(checkSelectionEvents, checkSelectionChanged)
 				.on('beforedeactivate keyup mouseup', saveRange)
 				.keyup(appendNewLine)
@@ -2449,7 +2466,7 @@
 							parent = parent.parentNode;
 						}
 
-						if (dom.isInline(parent, true)) {
+						if (parent && dom.isInline(parent, true)) {
 							rangeHelper.saveRange();
 							wrapInlines($wysiwygBody, $wysiwygDoc);
 							rangeHelper.restoreRange();
