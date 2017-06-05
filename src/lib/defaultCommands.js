@@ -464,32 +464,22 @@ define(function (require) {
 
 		// START_COMMAND: Image
 		image: {
-			exec: function (caller) {
-				var	editor  = this,
-					content = _tmpl('image', {
-						url: editor._('URL:'),
-						width: editor._('Width (optional):'),
-						height: editor._('Height (optional):'),
-						insert: editor._('Insert')
-					}, true);
+			_dropDown: function (editor, caller, cb) {
+				var content = _tmpl('image', {
+					url: editor._('URL:'),
+					width: editor._('Width (optional):'),
+					height: editor._('Height (optional):'),
+					insert: editor._('Insert')
+				}, true);
+
+				var	urlInput = content.find('#image');
 
 				content.find('.button').click(function (e) {
-					var	val    = content.find('#image').val(),
-						width  = content.find('#width').val(),
-						height = content.find('#height').val(),
-						attrs  = '';
-
-					if (width) {
-						attrs += ' width="' + width + '"';
-					}
-
-					if (height) {
-						attrs += ' height="' + height + '"';
-					}
-
-					if (val) {
-						editor.wysiwygEditorInsertHtml(
-							'<img' + attrs + ' src="' + val + '" />'
+					if (urlInput.val()) {
+						cb(
+							urlInput.val(),
+							content.find('#width').val(),
+							content.find('#height').val()
 						);
 					}
 
@@ -499,47 +489,84 @@ define(function (require) {
 
 				editor.createDropDown(caller, 'insertimage', content);
 			},
+			exec: function (caller) {
+				var	editor  = this;
+
+				defaultCommnds.image._dropDown(
+					editor,
+					caller,
+					function (url, width, height) {
+						var attrs  = '';
+
+						if (width) {
+							attrs += ' width="' + width + '"';
+						}
+
+						if (height) {
+							attrs += ' height="' + height + '"';
+						}
+
+						editor.wysiwygEditorInsertHtml(
+							'<img' + attrs + ' src="' + url + '" />'
+						);
+					}
+				);
+			},
 			tooltip: 'Insert an image'
 		},
 		// END_COMMAND
 
 		// START_COMMAND: E-mail
 		email: {
-			exec: function (caller) {
-				var	editor  = this,
-					content = _tmpl('email', {
-						label: editor._('E-mail:'),
-						desc: editor._('Description (optional):'),
-						insert: editor._('Insert')
-					}, true);
+			_dropDown: function (editor, caller, cb) {
+				var content = _tmpl('email', {
+					label: editor._('E-mail:'),
+					desc: editor._('Description (optional):'),
+					insert: editor._('Insert')
+				}, true);
 
-				content.find('.button').click(function (e) {
-					var val         = content.find('#email').val(),
-						description = content.find('#des').val();
+				var emailInput = content.find('#email');
 
-					if (val) {
-						// needed for IE to reset the last range
-						editor.focus();
-
-						if (!editor.getRangeHelper().selectedHtml() ||
-							description) {
-							description = description || val;
-
-							editor.wysiwygEditorInsertHtml(
-								'<a href="' + 'mailto:' + val + '">' +
-									description +
-								'</a>'
-							);
-						} else {
-							editor.execCommand('createlink', 'mailto:' + val);
-						}
+				function insertEmail(e) {
+					if (emailInput.val()) {
+						cb(emailInput.val(), content.find('#des').val());
 					}
 
 					editor.closeDropDown(true);
 					e.preventDefault();
+				}
+
+				content.find('.button').click(insertEmail);
+				emailInput.add(content.find('#des')).keypress(function (e) {
+					// 13 = enter key
+					if (e.which === 13 && emailInput.val()) {
+						insertEmail(e);
+					}
 				});
 
 				editor.createDropDown(caller, 'insertemail', content);
+			},
+			exec: function (caller) {
+				var	editor  = this;
+
+				defaultCommnds.email._dropDown(
+					editor,
+					caller,
+					function (email, text) {
+						// needed for IE to reset the last range
+						editor.focus();
+
+						if (!editor.getRangeHelper().selectedHtml() || text) {
+							editor.wysiwygEditorInsertHtml(
+								'<a href="' + 'mailto:' + email + '">' +
+								(text || email) +
+								'</a>'
+							);
+						} else {
+							editor.execCommand('createlink', 'mailto:' + email);
+						}
+					}
+				);
 			},
 			tooltip: 'Insert an email'
 		},
@@ -547,22 +574,41 @@ define(function (require) {
 
 		// START_COMMAND: Link
 		link: {
-			exec: function (caller) {
-				var url, text;
-				var editor  = this;
+			_dropDown: function (editor, caller, cb) {
 				var content = _tmpl('link', {
 					url: editor._('URL:'),
 					desc: editor._('Description (optional):'),
 					ins: editor._('Insert')
 				}, true);
-				var $link = content.find('#link');
-				var $description = content.find('#des');
+
+				var linkInput = content.find('#link');
 
 				function insertUrl(e) {
-					url  = $link.val();
-					text = $description.val();
+					if (linkInput.val()) {
+						cb(linkInput.val(), content.find('#des').val());
+					}
 
-					if (url) {
+					editor.closeDropDown(true);
+					e.preventDefault();
+				}
+
+				content.find('.button').click(insertUrl);
+				linkInput.add(content.find('#des')).keypress(function (e) {
+					// 13 = enter key
+					if (e.which === 13 && linkInput.val()) {
+						insertUrl(e);
+					}
+				});
+
+				editor.createDropDown(caller, 'insertlink', content);
+			},
+			exec: function (caller) {
+				var editor = this;
+
+				defaultCommnds.link._dropDown(
+					editor,
+					caller,
+					function (url, text) {
 						// needed for IE to restore the last range
 						editor.focus();
 
@@ -579,21 +625,7 @@ define(function (require) {
 							editor.execCommand('createlink', url);
 						}
 					}
-
-					editor.closeDropDown(true);
-					e.preventDefault();
-				}
-
-				content.find('.button').click(insertUrl);
-
-				$link.add($description).keypress(function (e) {
-					// 13 = enter key
-					if (e.which === 13 && $link.val()) {
-						insertUrl(e);
-					}
-				});
-
-				editor.createDropDown(caller, 'insertlink', content);
+				);
 			},
 			tooltip: 'Insert a link'
 		},
@@ -618,7 +650,6 @@ define(function (require) {
 			tooltip: 'Unlink'
 		},
 		// END_COMMAND
-
 
 		// START_COMMAND: Quote
 		quote: {

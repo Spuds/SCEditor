@@ -148,45 +148,62 @@
 			txtExec: ['[code]', '[/code]']
 		},
 		image: {
-			txtExec: function (caller, selected) {
-				var	editor = this,
-					url    = prompt(editor._('Enter the image URL:'), selected);
+			txtExec: function (caller) {
+				var	editor = this;
 
-				if (url) {
-					editor.insertText('[img]' + url + '[/img]');
-				}
+				getEditorCommand('image')._dropDown(
+					editor,
+					caller,
+					function (url, width, height) {
+						var attrs  = '';
+
+						if (width) {
+							attrs += ' width=' + width;
+						}
+
+						if (height) {
+							attrs += ' height=' + height;
+						}
+
+						editor.insertText(
+							'[img' + attrs + ']' + url + '[/img]'
+						);
+					}
+				);
 			}
 		},
 		email: {
 			txtExec: function (caller, selected) {
-				var	text, editor  = this,
-					display = selected && selected.indexOf('@') > -1 ?
-						null : selected,
-					email	= prompt(editor._('Enter the e-mail address:'),
-						(display ? '' : selected));
+				var	editor  = this;
 
-				if (email) {
-					text = prompt(editor._('Enter the displayed text:'),
-						display || email) || email;
-
-					editor.insertText('[email=' + email + ']' +
-						text + '[/email]');
-				}
+				getEditorCommand('email')._dropDown(
+					editor,
+					caller,
+					function (url, text) {
+						editor.insertText(
+							'[email=' + url + ']' +
+							(text || selected || url) +
+							'[/email]'
+						);
+					}
+				);
 			}
 		},
 		link: {
 			txtExec: function (caller, selected) {
-				var	editor  = this,
-					display = /^[a-z]+:\/\//i.test($.trim(selected)) ?
-						null : selected,
-					url     = prompt(editor._('Enter URL:'),
-						(display ? 'http://' : $.trim(selected))),
-					text    = prompt(editor._('Enter the displayed text:'),
-						display || url) || url;
+				var	editor  = this;
 
-				if (url) {
-					editor.insertText('[url=' + url + ']' + text + '[/url]');
-				}
+				getEditorCommand('link')._dropDown(
+					editor,
+					caller,
+					function (url, text) {
+						editor.insertText(
+							'[url=' + url + ']' +
+							(text || selected || url) +
+							'[/url]'
+						);
+					}
+				);
 			}
 		},
 		quote: {
