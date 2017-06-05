@@ -757,33 +757,28 @@ define(function (require) {
 
 		// START_COMMAND: YouTube
 		youtube: {
-			_dropDown: function (editor, caller, handleIdFunc) {
-				var	matches,
-					content = _tmpl('youtubeMenu', {
-						label: editor._('Video URL:'),
-						insert: editor._('Insert')
-					}, true);
+			_dropDown: function (editor, caller, callback) {
+				var	content = _tmpl('youtubeMenu', {
+					label: editor._('Video URL:'),
+					insert: editor._('Insert')
+				}, true);
 
 				content.find('.button').click(function (e) {
-					var val = content
-						.find('#link')
-						.val();
+					var val = content.find(content, '#link').val();
+					var idMatch = val.match(/(?:v=|v\/|embed\/|youtu.be\/)(.{11})/);
+					var timeMatch = val.match(/[&|?](?:star)?t=((\d+[hms]?){1,3})/);
+					var time = 0;
 
-					if (val) {
-						matches = val.match(
-							/(?:v=|v\/|embed\/|youtu.be\/)(.{11})/
-						);
+					if (timeMatch) {
+						$.each(timeMatch[1].split(/[hms]/), function (i, val) {
+							if (val !== '') {
+								time = (time * 60) + Number(val);
+							}
+						});
+					}
 
-						if (matches) {
-							val = matches[1];
-						}
-
-						if (/^[a-zA-Z0-9_\-]{11}$/.test(val)) {
-							handleIdFunc(val);
-						} else {
-							/*global alert:false*/
-							alert('Invalid YouTube video');
-						}
+					if (idMatch && /^[a-zA-Z0-9_\-]{11}$/.test(idMatch[1])) {
+						callback(idMatch[1], time);
 					}
 
 					editor.closeDropDown(true);
