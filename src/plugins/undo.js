@@ -170,7 +170,7 @@
 		 * @return {void}
 		 */
 		base.signalValuechangedEvent = function (e) {
-			var rawValue = e.detail.rawValue;
+			var rawValue = e.rawValue;
 
 			if (undoLimit > 0 && undoStates.length > undoLimit) {
 				undoStates.shift();
