@@ -2934,9 +2934,9 @@
 				base.bind('focus', handler, excludeWysiwyg, excludeSource);
 			} else if (!base.inSourceMode()) {
 				// Already has focus so do nothing
-				if (rangeHelper.hasSelection()) {
-					return;
-				}
+				//if (rangeHelper.hasSelection()) {
+				//	return;
+				//}
 
 				var container,
 					rng = rangeHelper.selectedRange();
