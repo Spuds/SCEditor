@@ -7,7 +7,7 @@
 			charChangedCount = 0,
 			previousValue,
 			undoLimit  = 50,
-			redoStates = [],
+			cursorPosition = -1,
 			undoStates = [],
 			ignoreNextValueChanged = false;
 
@@ -71,6 +71,21 @@
 			return (end - start) + 1;
 		};
 
+		/**
+		 * Add / remove current state from the stack
+		 *
+		 * @param {Object} state
+		 * @param {int} position
+		 */
+		var addState = function (state, position) {
+			while (position < undoStates.length - 1) {
+				undoStates.pop();
+			}
+
+			undoStates.push(state);
+			cursorPosition = position + 1;
+		};
+
 		base.init = function () {
 			// The this variable will be set to the instance of the editor
 			// calling it, hence why the plugins "this" is saved to the base
@@ -84,58 +99,38 @@
 			editor.addShortcut('ctrl+z', base.undo);
 			editor.addShortcut('ctrl+shift+z', base.redo);
 			editor.addShortcut('ctrl+y', base.redo);
-
-			// Add the command so our editor buttons show up
-			if (!editor.commands.undo) {
-				editor.commands.undo = {
-					txtExec: base.undo,
-					exec: base.undo,
-					tooltip: 'Undo'
-				};
-				editor.commands.redo = {
-					txtExec: base.redo,
-					exec: base.redo,
-					tooltip: 'Redo'
-				};
-			}
 		};
 
 		base.undo = function () {
-			var state = undoStates.pop(),
-				rawEditorValue = editor.val(null, false);
+			var rawEditorValue = editor.val(null, false);
 
-			if (state && !redoStates.length && rawEditorValue === state.value) {
-				state = undoStates.pop();
+			if (cursorPosition === -1) {
+				return false;
 			}
 
-			if (state) {
-				if (!redoStates.length) {
-					redoStates.push({
-						'caret': editor.sourceEditorCaret(),
-						'sourceMode': editor.sourceMode(),
-						'value': rawEditorValue
-					});
-				}
+			if (cursorPosition === undoStates.length - 1) {
+				addState({
+					'caret': editor.sourceEditorCaret(),
+					'sourceMode': editor.sourceMode(),
+					'value': rawEditorValue
+				}, cursorPosition);
 
-				redoStates.push(state);
-				applyState(state);
+				cursorPosition = cursorPosition - 1;
 			}
+
+			cursorPosition = cursorPosition - 1;
+			applyState(undoStates[cursorPosition]);
 
 			return false;
 		};
 
 		base.redo = function () {
-			var state = redoStates.pop();
-
-			if (!undoStates.length) {
-				undoStates.push(state);
-				state = redoStates.pop();
+			if (cursorPosition === undoStates.length - 1) {
+				return false;
 			}
 
-			if (state) {
-				undoStates.push(state);
-				applyState(state);
-			}
+			cursorPosition = cursorPosition + 1;
+			applyState(undoStates[cursorPosition]);
 
 			return false;
 		};
@@ -154,11 +149,11 @@
 			// Store the initial value as the last value
 			previousValue = rawValue;
 
-			undoStates.push({
+			addState({
 				'caret': caret,
 				'sourceMode': this.sourceMode(),
 				'value': rawValue
-			});
+			}, cursorPosition);
 		};
 
 		/**
@@ -184,7 +179,6 @@
 			}
 
 			// Value has changed so remove all redo states
-			redoStates.length = 0;
 			charChangedCount += simpleDiff(previousValue, rawValue);
 
 			if (charChangedCount < 20) {
@@ -194,11 +188,11 @@
 				return;
 			}
 
-			undoStates.push({
+			addState({
 				'caret': editor.sourceEditorCaret(),
 				'sourceMode': editor.sourceMode(),
 				'value': rawValue
-			});
+			}, cursorPosition);
 
 			charChangedCount = 0;
 			previousValue = rawValue;
