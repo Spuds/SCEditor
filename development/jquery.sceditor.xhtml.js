@@ -843,10 +843,10 @@
 							.data('sceditor-txtmode', !!command.txtExec)
 							.data('sceditor-wysiwygmode', !!command.exec)
 							.toggleClass('disabled', !command.exec)
-							.click(function () {
+							.on('mousedown', function (e) {
 								var $this = $(this);
 
-								if (!$this.hasClass('disabled')) {
+								if (!$this.hasClass('disabled') && e.which === 1) {
 									handleCommand($this, command);
 								}
 
@@ -1689,7 +1689,11 @@
 				if (e.which !== 3 && $dropdown) {
 					autoUpdate();
 
-					base.closeDropDown();
+					// don't close if its a click on the command button
+					if (typeof $(e.target).parent()
+							.data('sceditorCommand') === 'undefined') {
+						base.closeDropDown();
+					}
 				}
 			};
 
