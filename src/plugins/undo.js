@@ -99,6 +99,20 @@
 			editor.addShortcut('ctrl+z', base.undo);
 			editor.addShortcut('ctrl+shift+z', base.redo);
 			editor.addShortcut('ctrl+y', base.redo);
+
+			// Add the command so our editor buttons show up
+			if (!editor.commands.undo) {
+				editor.commands.undo = {
+					txtExec: base.undo,
+					exec: base.undo,
+					tooltip: 'Undo'
+				};
+				editor.commands.redo = {
+					txtExec: base.redo,
+					exec: base.redo,
+					tooltip: 'Redo'
+				};
+			}
 		};
 
 		base.undo = function () {
