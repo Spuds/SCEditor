@@ -443,7 +443,7 @@
 			 * @type {number}
 			 * @private
 			 */
-			var maximizeScrollPosiotion;
+			var maximizeScrollPosition;
 
 			/**
 			 * Stores the contents while a paste is taking place.
@@ -1492,7 +1492,7 @@
 				maximize = !!maximize;
 
 				if (maximize) {
-					maximizeScrollPosiotion = $globalWin.scrollTop();
+					maximizeScrollPosition = $globalWin.scrollTop();
 				}
 
 				$('html, body').toggleClass(maximizeSize, maximize);
@@ -1501,7 +1501,7 @@
 				base.height(maximize ? '100%' : options.height, false);
 
 				if (!maximize) {
-					$globalWin.scrollTop(maximizeScrollPosiotion);
+					$globalWin.scrollTop(maximizeScrollPosition);
 				}
 
 				autoExpand();
@@ -5980,7 +5980,7 @@
 		 * @name commands
 		 * @memberOf jQuery.sceditor
 		 */
-		var defaultCommnds = {
+		var defaultCmds = {
 			// START_COMMAND: Bold
 			bold: {
 				exec: 'bold',
@@ -6072,7 +6072,7 @@
 				exec: function (caller) {
 					var editor = this;
 
-					defaultCommnds.font._dropDown(
+					defaultCmds.font._dropDown(
 						editor,
 						caller,
 						function (fontName) {
@@ -6105,7 +6105,7 @@
 				exec: function (caller) {
 					var editor = this;
 
-					defaultCommnds.size._dropDown(
+					defaultCmds.size._dropDown(
 						editor,
 						caller,
 						function (fontSize) {
@@ -6121,7 +6121,7 @@
 				_dropDown: function (editor, caller, callback) {
 					var	content = $('<div />'),
 						html    = '',
-						cmd     = defaultCommnds.color;
+						cmd     = defaultCmds.color;
 
 					if (!cmd._htmlCache) {
 						editor.opts.colors.split('|').forEach(function (column) {
@@ -6153,7 +6153,7 @@
 				exec: function (caller) {
 					var editor = this;
 
-					defaultCommnds.color._dropDown(
+					defaultCmds.color._dropDown(
 						editor,
 						caller,
 						function (color) {
@@ -6417,7 +6417,7 @@
 				exec: function (caller) {
 					var	editor  = this;
 
-					defaultCommnds.image._dropDown(
+					defaultCmds.image._dropDown(
 						editor,
 						caller,
 						function (url, width, height) {
@@ -6474,7 +6474,7 @@
 				exec: function (caller) {
 					var	editor  = this;
 
-					defaultCommnds.email._dropDown(
+					defaultCmds.email._dropDown(
 						editor,
 						caller,
 						function (email, text) {
@@ -6530,7 +6530,7 @@
 				exec: function (caller) {
 					var editor = this;
 
-					defaultCommnds.link._dropDown(
+					defaultCmds.link._dropDown(
 						editor,
 						caller,
 						function (url, text) {
@@ -6674,7 +6674,7 @@
 					);
 				},
 				txtExec: function (caller) {
-					defaultCommnds.emoticon.exec.call(this, caller);
+					defaultCmds.emoticon.exec.call(this, caller);
 				},
 				tooltip: 'Insert an emoticon'
 			},
@@ -6715,7 +6715,7 @@
 				exec: function (caller) {
 					var editor = this;
 
-					defaultCommnds.youtube._dropDown(
+					defaultCmds.youtube._dropDown(
 						editor,
 						caller,
 						function (id) {
@@ -6755,10 +6755,10 @@
 						.replace(/day/i, day);
 				},
 				exec: function () {
-					this.insertText(defaultCommnds.date._date(this));
+					this.insertText(defaultCmds.date._date(this));
 				},
 				txtExec: function () {
-					this.insertText(defaultCommnds.date._date(this));
+					this.insertText(defaultCmds.date._date(this));
 				},
 				tooltip: 'Insert current date'
 			},
@@ -6787,10 +6787,10 @@
 					return hours + ':' + mins + ':' + secs;
 				},
 				exec: function () {
-					this.insertText(defaultCommnds.time._time());
+					this.insertText(defaultCmds.time._time());
 				},
 				txtExec: function () {
-					this.insertText(defaultCommnds.time._time());
+					this.insertText(defaultCmds.time._time());
 				},
 				tooltip: 'Insert current time'
 			},
@@ -6909,7 +6909,7 @@
 			ignore: {}
 		};
 
-		return defaultCommnds;
+		return defaultCmds;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 

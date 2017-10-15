@@ -55,7 +55,7 @@ define(function (require) {
 	 * @name commands
 	 * @memberOf jQuery.sceditor
 	 */
-	var defaultCommnds = {
+	var defaultCmds = {
 		// START_COMMAND: Bold
 		bold: {
 			exec: 'bold',
@@ -147,7 +147,7 @@ define(function (require) {
 			exec: function (caller) {
 				var editor = this;
 
-				defaultCommnds.font._dropDown(
+				defaultCmds.font._dropDown(
 					editor,
 					caller,
 					function (fontName) {
@@ -180,7 +180,7 @@ define(function (require) {
 			exec: function (caller) {
 				var editor = this;
 
-				defaultCommnds.size._dropDown(
+				defaultCmds.size._dropDown(
 					editor,
 					caller,
 					function (fontSize) {
@@ -196,7 +196,7 @@ define(function (require) {
 			_dropDown: function (editor, caller, callback) {
 				var	content = $('<div />'),
 					html    = '',
-					cmd     = defaultCommnds.color;
+					cmd     = defaultCmds.color;
 
 				if (!cmd._htmlCache) {
 					editor.opts.colors.split('|').forEach(function (column) {
@@ -228,7 +228,7 @@ define(function (require) {
 			exec: function (caller) {
 				var editor = this;
 
-				defaultCommnds.color._dropDown(
+				defaultCmds.color._dropDown(
 					editor,
 					caller,
 					function (color) {
@@ -492,7 +492,7 @@ define(function (require) {
 			exec: function (caller) {
 				var	editor  = this;
 
-				defaultCommnds.image._dropDown(
+				defaultCmds.image._dropDown(
 					editor,
 					caller,
 					function (url, width, height) {
@@ -549,7 +549,7 @@ define(function (require) {
 			exec: function (caller) {
 				var	editor  = this;
 
-				defaultCommnds.email._dropDown(
+				defaultCmds.email._dropDown(
 					editor,
 					caller,
 					function (email, text) {
@@ -605,7 +605,7 @@ define(function (require) {
 			exec: function (caller) {
 				var editor = this;
 
-				defaultCommnds.link._dropDown(
+				defaultCmds.link._dropDown(
 					editor,
 					caller,
 					function (url, text) {
@@ -749,7 +749,7 @@ define(function (require) {
 				);
 			},
 			txtExec: function (caller) {
-				defaultCommnds.emoticon.exec.call(this, caller);
+				defaultCmds.emoticon.exec.call(this, caller);
 			},
 			tooltip: 'Insert an emoticon'
 		},
@@ -790,7 +790,7 @@ define(function (require) {
 			exec: function (caller) {
 				var editor = this;
 
-				defaultCommnds.youtube._dropDown(
+				defaultCmds.youtube._dropDown(
 					editor,
 					caller,
 					function (id) {
@@ -830,10 +830,10 @@ define(function (require) {
 					.replace(/day/i, day);
 			},
 			exec: function () {
-				this.insertText(defaultCommnds.date._date(this));
+				this.insertText(defaultCmds.date._date(this));
 			},
 			txtExec: function () {
-				this.insertText(defaultCommnds.date._date(this));
+				this.insertText(defaultCmds.date._date(this));
 			},
 			tooltip: 'Insert current date'
 		},
@@ -862,10 +862,10 @@ define(function (require) {
 				return hours + ':' + mins + ':' + secs;
 			},
 			exec: function () {
-				this.insertText(defaultCommnds.time._time());
+				this.insertText(defaultCmds.time._time());
 			},
 			txtExec: function () {
-				this.insertText(defaultCommnds.time._time());
+				this.insertText(defaultCmds.time._time());
 			},
 			tooltip: 'Insert current time'
 		},
@@ -984,5 +984,5 @@ define(function (require) {
 		ignore: {}
 	};
 
-	return defaultCommnds;
+	return defaultCmds;
 });

@@ -69,7 +69,7 @@
 		 *
 		 * @private
 		 */
-		var original  = el.get ? el.get(0) : el;
+		var original = el.get ? el.get(0) : el;
 		var $original = $(original);
 
 		/**
@@ -281,7 +281,7 @@
 		 * @type {number}
 		 * @private
 		 */
-		var maximizeScrollPosiotion;
+		var maximizeScrollPosition;
 
 		/**
 		 * Stores the contents while a paste is taking place.
@@ -354,6 +354,8 @@
 		 */
 		base.opts = options = $.extend({}, SCEditor.defaultOptions, options);
 
+		// Don't deep extend emoticons (fixes #565)
+		base.opts.emoticons = options.emoticons || SCEditor.defaultOptions.emoticons;
 
 		/**
 		 * Creates the editor iframe and textarea
@@ -1330,7 +1332,7 @@
 			maximize = !!maximize;
 
 			if (maximize) {
-				maximizeScrollPosiotion = $globalWin.scrollTop();
+				maximizeScrollPosition = $globalWin.scrollTop();
 			}
 
 			$('html, body').toggleClass(maximizeSize, maximize);
@@ -1339,7 +1341,7 @@
 			base.height(maximize ? '100%' : options.height, false);
 
 			if (!maximize) {
-				$globalWin.scrollTop(maximizeScrollPosiotion);
+				$globalWin.scrollTop(maximizeScrollPosition);
 			}
 
 			autoExpand();
