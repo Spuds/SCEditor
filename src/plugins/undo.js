@@ -128,11 +128,9 @@
 					'sourceMode': editor.sourceMode(),
 					'value': rawEditorValue
 				}, cursorPosition);
-
-				cursorPosition = cursorPosition - 1;
 			}
 
-			cursorPosition = cursorPosition - 1;
+			cursorPosition = Math.max(0, cursorPosition - 1);
 			applyState(undoStates[cursorPosition]);
 
 			return false;
@@ -187,7 +185,8 @@
 
 			// If the editor hasn't fully loaded yet,
 			// then the previous value won't be set.
-			if (ignoreNextValueChanged || !previousValue ||
+			if (ignoreNextValueChanged ||
+				typeof (previousValue) === 'undefined' ||
 				previousValue === rawValue) {
 				return;
 			}
