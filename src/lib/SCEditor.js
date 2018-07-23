@@ -355,7 +355,8 @@
 		base.opts = options = $.extend({}, SCEditor.defaultOptions, options);
 
 		// Don't deep extend emoticons (fixes #565)
-		base.opts.emoticons = options.emoticons || SCEditor.defaultOptions.emoticons;
+		base.opts.emoticons = options.emoticons ||
+			SCEditor.defaultOptions.emoticons;
 
 		/**
 		 * Creates the editor iframe and textarea
@@ -692,6 +693,13 @@
 
 							updateActiveButtons();
 							return false;
+						});
+
+					// Prevent editor losing focus when button clicked
+					$button
+						.on('mousedown', function (e) {
+							base.closeDropDown();
+							e.preventDefault();
 						});
 
 					if (command.tooltip) {
