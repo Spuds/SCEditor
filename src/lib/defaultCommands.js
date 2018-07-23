@@ -98,6 +98,20 @@ define(function (require) {
 
 		// START_COMMAND: Left
 		left: {
+			state: function (node) {
+				if (node && node.nodeType === 3) {
+					node = node.parentNode;
+				}
+
+				if (node) {
+					var $node = $(node);
+					var isLtr = $node.css('direction') === 'ltr';
+					var align = $node.css('textAlign');
+
+					return align === 'left' ||
+						align === (isLtr ? 'start' : 'end');
+				}
+			},
 			exec: 'justifyleft',
 			tooltip: 'Align left'
 		},
@@ -110,6 +124,20 @@ define(function (require) {
 		// END_COMMAND
 		// START_COMMAND: Right
 		right: {
+			state: function (node) {
+				if (node && node.nodeType === 3) {
+					node = node.parentNode;
+				}
+
+				if (node) {
+					var $node = $(node);
+					var isLtr = $node.css('direction') === 'ltr';
+					var align = $node.css('textAlign');
+
+					return align === 'right' ||
+						align === (isLtr ? 'end' : 'start');
+				}
+			},
 			exec: 'justifyright',
 			tooltip: 'Align right'
 		},
