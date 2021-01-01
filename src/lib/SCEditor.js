@@ -3197,11 +3197,11 @@
 
 				prev         = emoticon.previousSibling;
 				next         = emoticon.nextSibling;
-				previousText = prev.nodeValue;
+				previousText = (prev) ? prev.nodeValue : null;
 
 				// For IE's HTMLPhraseElement
 				if (previousText === null) {
-					previousText = prev.innerText || '';
+					previousText = (prev) ? prev.innerText || '' : '';
 				}
 
 				if ((!prev || !noneWsRegex.test(prev.nodeValue.slice(-1))) &&
