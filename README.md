@@ -1,7 +1,5 @@
-# [SCEditor](http://www.sceditor.com/) v1.5.1
+# [SCEditor](http://www.sceditor.com/) ElkArte Fork v1.5.3
 
-[![Build Status](http://img.shields.io/travis/samclarke/SCEditor/master.svg?style=flat-square)](https://travis-ci.org/samclarke/SCEditor)
-[![Dependency Status](http://img.shields.io/gemnasium/samclarke/SCEditor.svg?style=flat-square)](https://gemnasium.com/samclarke/SCEditor)
 [![SemVer](http://img.shields.io/:semver-✓-brightgreen.svg?style=flat-square)](http://semver.org)
 [![License](http://img.shields.io/npm/l/sceditor.svg?style=flat-square)](https://github.com/samclarke/SCEditor/blob/master/MIT.txt)
 
