@@ -266,7 +266,7 @@
 		/**
 		 * @private
 		 */
-		var	escapeEntities,
+		var	escapeEntites,
 			trim,
 			serializeNode,
 			handleDoc,
@@ -284,8 +284,8 @@
 		 * @return {String}
 		 * @private
 		 */
-		escapeEntities = function (str) {
-			var entities = {
+		escapeEntites = function (str) {
+			var entites = {
 				'&': '&amp;',
 				'<': '&lt;',
 				'>': '&gt;',
@@ -293,7 +293,7 @@
 			};
 
 			return !str ? '' : str.replace(/[&<>"]/g, function (entity) {
-				return entities[entity] || entity;
+				return entites[entity] || entity;
 			});
 		};
 
@@ -430,7 +430,7 @@
 				attrValue = attr.value;
 
 				output(' ' + attr.name.toLowerCase() + '="' +
-					escapeEntities(attrValue) + '"', false);
+					escapeEntites(attrValue) + '"', false);
 			}
 			output(selfClosing ? ' />' : '>', false);
 
@@ -463,7 +463,7 @@
 		 * @private
 		 */
 		handleCdata =  function (node) {
-			output('<![CDATA[' + escapeEntities(node.nodeValue) + ']]>');
+			output('<![CDATA[' + escapeEntites(node.nodeValue) + ']]>');
 		};
 
 		/**
@@ -473,7 +473,7 @@
 		 * @private
 		 */
 		handleComment = function (node) {
-			output('<!-- ' + escapeEntities(node.nodeValue) + ' -->');
+			output('<!-- ' + escapeEntites(node.nodeValue) + ' -->');
 		};
 
 		/**
@@ -490,7 +490,7 @@
 			}
 
 			if (text) {
-				output(escapeEntities(text), !parentIsPre && canIndent(node));
+				output(escapeEntites(text), !parentIsPre && canIndent(node));
 			}
 		};
 
@@ -552,7 +552,7 @@
 		var base = this;
 
 		/**
-		 * Tag conversions cache
+		 * Tag converstions cache
 		 * @type {Object}
 		 * @private
 		 */
@@ -756,7 +756,7 @@
 					empty           = tagName !== 'iframe' && isEmpty(node,
 						isTopLevel && noSiblings && tagName !== 'br'),
 					document        = node.ownerDocument,
-					allowedTags     = sceditorPlugins.xhtml.allowedTags,
+					allowedtags     = sceditorPlugins.xhtml.allowedTags,
 					disallowedTags  = sceditorPlugins.xhtml.disallowedTags;
 
 				// 3 = text node
@@ -773,8 +773,8 @@
 				if (empty) {
 					remove = true;
 				// 3 is text node which do not get filtered
-				} else if (allowedTags && allowedTags.length) {
-					remove = ($.inArray(tagName, allowedTags) < 0);
+				} else if (allowedtags && allowedtags.length) {
+					remove = ($.inArray(tagName, allowedtags) < 0);
 				} else if (disallowedTags && disallowedTags.length) {
 					remove = ($.inArray(tagName, disallowedTags) > -1);
 				}

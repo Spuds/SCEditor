@@ -231,7 +231,7 @@
 			 *
 			 * @private
 			 */
-			var original  = el.get ? el.get(0) : el;
+			var original = el.get ? el.get(0) : el;
 			var $original = $(original);
 
 			/**
@@ -516,6 +516,9 @@
 			 */
 			base.opts = options = $.extend({}, SCEditor.defaultOptions, options);
 
+			// Don't deep extend emoticons (fixes #565)
+			base.opts.emoticons = options.emoticons ||
+				SCEditor.defaultOptions.emoticons;
 
 			/**
 			 * Creates the editor iframe and textarea
@@ -852,6 +855,13 @@
 
 								updateActiveButtons();
 								return false;
+							});
+
+						// Prevent editor losing focus when button clicked
+						$button
+							.on('mousedown', function (e) {
+								base.closeDropDown();
+								e.preventDefault();
 							});
 
 						if (command.tooltip) {
@@ -6023,6 +6033,20 @@
 
 			// START_COMMAND: Left
 			left: {
+				state: function (node) {
+					if (node && node.nodeType === 3) {
+						node = node.parentNode;
+					}
+
+					if (node) {
+						var $node = $(node);
+						var isLtr = $node.css('direction') === 'ltr';
+						var align = $node.css('textAlign');
+
+						return align === 'left' ||
+							align === (isLtr ? 'start' : 'end');
+					}
+				},
 				exec: 'justifyleft',
 				tooltip: 'Align left'
 			},
@@ -6035,6 +6059,20 @@
 			// END_COMMAND
 			// START_COMMAND: Right
 			right: {
+				state: function (node) {
+					if (node && node.nodeType === 3) {
+						node = node.parentNode;
+					}
+
+					if (node) {
+						var $node = $(node);
+						var isLtr = $node.css('direction') === 'ltr';
+						var align = $node.css('textAlign');
+
+						return align === 'right' ||
+							align === (isLtr ? 'end' : 'start');
+					}
+				},
 				exec: 'justifyright',
 				tooltip: 'Align right'
 			},

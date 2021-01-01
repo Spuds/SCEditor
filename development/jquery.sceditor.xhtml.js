@@ -231,7 +231,7 @@
 			 *
 			 * @private
 			 */
-			var original  = el.get ? el.get(0) : el;
+			var original = el.get ? el.get(0) : el;
 			var $original = $(original);
 
 			/**
@@ -516,6 +516,9 @@
 			 */
 			base.opts = options = $.extend({}, SCEditor.defaultOptions, options);
 
+			// Don't deep extend emoticons (fixes #565)
+			base.opts.emoticons = options.emoticons ||
+				SCEditor.defaultOptions.emoticons;
 
 			/**
 			 * Creates the editor iframe and textarea
@@ -852,6 +855,13 @@
 
 								updateActiveButtons();
 								return false;
+							});
+
+						// Prevent editor losing focus when button clicked
+						$button
+							.on('mousedown', function (e) {
+								base.closeDropDown();
+								e.preventDefault();
 							});
 
 						if (command.tooltip) {
@@ -6023,6 +6033,20 @@
 
 			// START_COMMAND: Left
 			left: {
+				state: function (node) {
+					if (node && node.nodeType === 3) {
+						node = node.parentNode;
+					}
+
+					if (node) {
+						var $node = $(node);
+						var isLtr = $node.css('direction') === 'ltr';
+						var align = $node.css('textAlign');
+
+						return align === 'left' ||
+							align === (isLtr ? 'start' : 'end');
+					}
+				},
 				exec: 'justifyleft',
 				tooltip: 'Align left'
 			},
@@ -6035,6 +6059,20 @@
 			// END_COMMAND
 			// START_COMMAND: Right
 			right: {
+				state: function (node) {
+					if (node && node.nodeType === 3) {
+						node = node.parentNode;
+					}
+
+					if (node) {
+						var $node = $(node);
+						var isLtr = $node.css('direction') === 'ltr';
+						var align = $node.css('textAlign');
+
+						return align === 'right' ||
+							align === (isLtr ? 'end' : 'start');
+					}
+				},
 				exec: 'justifyright',
 				tooltip: 'Align right'
 			},
@@ -7554,7 +7592,7 @@
 		/**
 		 * @private
 		 */
-		var	escapeEntities,
+		var	escapeEntites,
 			trim,
 			serializeNode,
 			handleDoc,
@@ -7572,8 +7610,8 @@
 		 * @return {String}
 		 * @private
 		 */
-		escapeEntities = function (str) {
-			var entities = {
+		escapeEntites = function (str) {
+			var entites = {
 				'&': '&amp;',
 				'<': '&lt;',
 				'>': '&gt;',
@@ -7581,7 +7619,7 @@
 			};
 
 			return !str ? '' : str.replace(/[&<>"]/g, function (entity) {
-				return entities[entity] || entity;
+				return entites[entity] || entity;
 			});
 		};
 
@@ -7718,7 +7756,7 @@
 				attrValue = attr.value;
 
 				output(' ' + attr.name.toLowerCase() + '="' +
-					escapeEntities(attrValue) + '"', false);
+					escapeEntites(attrValue) + '"', false);
 			}
 			output(selfClosing ? ' />' : '>', false);
 
@@ -7751,7 +7789,7 @@
 		 * @private
 		 */
 		handleCdata =  function (node) {
-			output('<![CDATA[' + escapeEntities(node.nodeValue) + ']]>');
+			output('<![CDATA[' + escapeEntites(node.nodeValue) + ']]>');
 		};
 
 		/**
@@ -7761,7 +7799,7 @@
 		 * @private
 		 */
 		handleComment = function (node) {
-			output('<!-- ' + escapeEntities(node.nodeValue) + ' -->');
+			output('<!-- ' + escapeEntites(node.nodeValue) + ' -->');
 		};
 
 		/**
@@ -7778,7 +7816,7 @@
 			}
 
 			if (text) {
-				output(escapeEntities(text), !parentIsPre && canIndent(node));
+				output(escapeEntites(text), !parentIsPre && canIndent(node));
 			}
 		};
 
@@ -7840,7 +7878,7 @@
 		var base = this;
 
 		/**
-		 * Tag conversions cache
+		 * Tag converstions cache
 		 * @type {Object}
 		 * @private
 		 */
@@ -8044,7 +8082,7 @@
 					empty           = tagName !== 'iframe' && isEmpty(node,
 						isTopLevel && noSiblings && tagName !== 'br'),
 					document        = node.ownerDocument,
-					allowedTags     = sceditorPlugins.xhtml.allowedTags,
+					allowedtags     = sceditorPlugins.xhtml.allowedTags,
 					disallowedTags  = sceditorPlugins.xhtml.disallowedTags;
 
 				// 3 = text node
@@ -8061,8 +8099,8 @@
 				if (empty) {
 					remove = true;
 				// 3 is text node which do not get filtered
-				} else if (allowedTags && allowedTags.length) {
-					remove = ($.inArray(tagName, allowedTags) < 0);
+				} else if (allowedtags && allowedtags.length) {
+					remove = ($.inArray(tagName, allowedtags) < 0);
 				} else if (disallowedTags && disallowedTags.length) {
 					remove = ($.inArray(tagName, disallowedTags) > -1);
 				}
