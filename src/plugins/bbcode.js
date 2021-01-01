@@ -2560,6 +2560,7 @@
 					'-khtml-left'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[left]{0}[/left]',
 			html: '<div align="left">{0}</div>'
@@ -2576,6 +2577,7 @@
 					'-khtml-center'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[center]{0}[/center]',
 			html: '<div align="center">{0}</div>'
@@ -2592,6 +2594,7 @@
 					'-khtml-right'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[right]{0}[/right]',
 			html: '<div align="right">{0}</div>'
@@ -2608,6 +2611,7 @@
 					'-khtml-justify'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[justify]{0}[/justify]',
 			html: '<div align="justify">{0}</div>'
