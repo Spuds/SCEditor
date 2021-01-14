@@ -599,6 +599,9 @@
 				.on('reset', handleFormReset)
 				.submit(base.updateOriginal);
 
+			$(window)
+				.on('unload', base.updateOriginal);
+
 			$globalWin.on('resize orientationChanged', handleWindowResize);
 
 			$wysiwygBody
@@ -1440,6 +1443,9 @@
 			$(original.form)
 				.off('reset', handleFormReset)
 				.off('submit', base.updateOriginal);
+
+			$(window)
+				.off('unload', base.updateOriginal);
 
 			$wysiwygBody.off();
 			$wysiwygDoc.off().find('*').remove();

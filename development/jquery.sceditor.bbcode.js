@@ -761,6 +761,9 @@
 					.on('reset', handleFormReset)
 					.submit(base.updateOriginal);
 
+				$(window)
+					.on('unload', base.updateOriginal);
+
 				$globalWin.on('resize orientationChanged', handleWindowResize);
 
 				$wysiwygBody
@@ -1602,6 +1605,9 @@
 				$(original.form)
 					.off('reset', handleFormReset)
 					.off('submit', base.updateOriginal);
+
+				$(window)
+					.off('unload', base.updateOriginal);
 
 				$wysiwygBody.off();
 				$wysiwygDoc.off().find('*').remove();
@@ -3359,11 +3365,11 @@
 
 					prev         = emoticon.previousSibling;
 					next         = emoticon.nextSibling;
-					previousText = prev.nodeValue;
+					previousText = (prev) ? prev.nodeValue : null;
 
 					// For IE's HTMLPhraseElement
 					if (previousText === null) {
-						previousText = prev.innerText || '';
+						previousText = (prev) ? prev.innerText || '' : '';
 					}
 
 					if ((!prev || !noneWsRegex.test(prev.nodeValue.slice(-1))) &&
@@ -9886,6 +9892,7 @@
 					'-khtml-left'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[left]{0}[/left]',
 			html: '<div align="left">{0}</div>'
@@ -9902,6 +9909,7 @@
 					'-khtml-center'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[center]{0}[/center]',
 			html: '<div align="center">{0}</div>'
@@ -9918,6 +9926,7 @@
 					'-khtml-right'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[right]{0}[/right]',
 			html: '<div align="right">{0}</div>'
@@ -9934,6 +9943,7 @@
 					'-khtml-justify'
 				]
 			},
+			allowsEmpty: true,
 			isInline: false,
 			format: '[justify]{0}[/justify]',
 			html: '<div align="justify">{0}</div>'
