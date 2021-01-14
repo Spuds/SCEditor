@@ -761,6 +761,9 @@
 					.on('reset', handleFormReset)
 					.submit(base.updateOriginal);
 
+				$(window)
+					.on('unload', base.updateOriginal);
+
 				$globalWin.on('resize orientationChanged', handleWindowResize);
 
 				$wysiwygBody
@@ -1602,6 +1605,9 @@
 				$(original.form)
 					.off('reset', handleFormReset)
 					.off('submit', base.updateOriginal);
+
+				$(window)
+					.off('unload', base.updateOriginal);
 
 				$wysiwygBody.off();
 				$wysiwygDoc.off().find('*').remove();
@@ -3359,11 +3365,11 @@
 
 					prev         = emoticon.previousSibling;
 					next         = emoticon.nextSibling;
-					previousText = prev.nodeValue;
+					previousText = (prev) ? prev.nodeValue : null;
 
 					// For IE's HTMLPhraseElement
 					if (previousText === null) {
-						previousText = prev.innerText || '';
+						previousText = (prev) ? prev.innerText || '' : '';
 					}
 
 					if ((!prev || !noneWsRegex.test(prev.nodeValue.slice(-1))) &&
