@@ -1,12 +1,11 @@
-# [SCEditor](http://www.sceditor.com/) ElkArte Fork v1.5.3
+# [SCEditor](http://www.sceditor.com/) ElkArte Fork v1.5.4
 
 [![SemVer](http://img.shields.io/:semver-✓-brightgreen.svg?style=flat-square)](http://semver.org)
 [![License](http://img.shields.io/npm/l/sceditor.svg?style=flat-square)](https://github.com/samclarke/SCEditor/blob/master/MIT.txt)
 
-A lightweight WYSIWYG BBCode and XHTML editor.
+A lightweight WYSIWYG BBCode and XHTML editor.  This fork has been updated from the original 1.x version to patch maintain support for ElkArte 1.x lines.
 
 For more information visit [sceditor.com](http://www.sceditor.com/)
-
 
 ## Usage
 
@@ -39,6 +38,12 @@ $(function() {
 });
 ```
 
+To get the contents of the editor:
+
+```js
+var textarea = document.getElementById("id-of-textarea");
+sceditor.instance(textarea).val();
+```
 
 
 ## Options
