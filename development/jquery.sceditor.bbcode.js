@@ -761,7 +761,7 @@
 					.on('reset', handleFormReset)
 					.submit(base.updateOriginal);
 
-				$(window)
+				$globalDoc
 					.on('unload', base.updateOriginal);
 
 				$globalWin.on('resize orientationChanged', handleWindowResize);
@@ -858,13 +858,6 @@
 
 								updateActiveButtons();
 								return false;
-							});
-
-						// Prevent editor losing focus when button clicked
-						$button
-							.on('mousedown', function (e) {
-								base.closeDropDown();
-								e.preventDefault();
 							});
 
 						if (command.tooltip) {
@@ -1606,7 +1599,7 @@
 					.off('reset', handleFormReset)
 					.off('submit', base.updateOriginal);
 
-				$(window)
+				$globalDoc
 					.off('unload', base.updateOriginal);
 
 				$wysiwygBody.off();
@@ -5945,6 +5938,7 @@
 		var $      = __webpack_require__(1);
 		var IE_VER = __webpack_require__(7).ie;
 		var _tmpl  = __webpack_require__(8);
+		var escape = __webpack_require__(6);
 
 		// In IE < 11 a BR at the end of a block level element
 		// causes a line break. In all other browsers it's collapsed.
@@ -6468,15 +6462,17 @@
 							var attrs  = '';
 
 							if (width) {
-								attrs += ' width="' + width + '"';
+								attrs += ' width="' + parseInt(width, 10) + '"';
 							}
 
 							if (height) {
-								attrs += ' height="' + height + '"';
+								attrs += ' height="' + parseInt(height, 10) + '"';
 							}
 
+							attrs += ' src="' + escape.entities(url) + '"';
+
 							editor.wysiwygEditorInsertHtml(
-								'<img' + attrs + ' src="' + url + '" />'
+								'<img' + attrs + ' />'
 							);
 						}
 					);
@@ -6527,8 +6523,9 @@
 
 							if (!editor.getRangeHelper().selectedHtml() || text) {
 								editor.wysiwygEditorInsertHtml(
-									'<a href="' + 'mailto:' + email + '">' +
-									(text || email) +
+									'<a href="' +
+									'mailto:' + escape.entities(email) + '">' +
+									escape.entities((text || email)) +
 									'</a>'
 								);
 							} else {
@@ -6588,7 +6585,9 @@
 								text = text || url;
 
 								editor.wysiwygEditorInsertHtml(
-									'<a href="' + url + '">' + text + '</a>'
+									'<a href="' + escape.entities(url) + '">' +
+									escape.entities(text) +
+									'</a>'
 								);
 							} else {
 								editor.execCommand('createlink', url);
@@ -6629,7 +6628,9 @@
 					// if there is HTML passed set end to null so any selected
 					// text is replaced
 					if (html) {
-						author = (author ? '<cite>' + author + '</cite>' : '');
+						author = (author ? '<cite>' +
+							escape.entities(author) +
+						'</cite>' : '');
 						before = before + author + html + end;
 						end    = null;
 					// if not add a newline to the end of the inserted quote
