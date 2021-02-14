@@ -4,6 +4,7 @@ define(function (require) {
 	var $      = require('jquery');
 	var IE_VER = require('./browser').ie;
 	var _tmpl  = require('./templates');
+	var escape = require('./escape');
 
 	// In IE < 11 a BR at the end of a block level element
 	// causes a line break. In all other browsers it's collapsed.
@@ -527,15 +528,17 @@ define(function (require) {
 						var attrs  = '';
 
 						if (width) {
-							attrs += ' width="' + width + '"';
+							attrs += ' width="' + parseInt(width, 10) + '"';
 						}
 
 						if (height) {
-							attrs += ' height="' + height + '"';
+							attrs += ' height="' + parseInt(height, 10) + '"';
 						}
 
+						attrs += ' src="' + escape.entities(url) + '"';
+
 						editor.wysiwygEditorInsertHtml(
-							'<img' + attrs + ' src="' + url + '" />'
+							'<img' + attrs + ' />'
 						);
 					}
 				);
@@ -586,8 +589,9 @@ define(function (require) {
 
 						if (!editor.getRangeHelper().selectedHtml() || text) {
 							editor.wysiwygEditorInsertHtml(
-								'<a href="' + 'mailto:' + email + '">' +
-								(text || email) +
+								'<a href="' +
+								'mailto:' + escape.entities(email) + '">' +
+								escape.entities((text || email)) +
 								'</a>'
 							);
 						} else {
@@ -647,7 +651,9 @@ define(function (require) {
 							text = text || url;
 
 							editor.wysiwygEditorInsertHtml(
-								'<a href="' + url + '">' + text + '</a>'
+								'<a href="' + escape.entities(url) + '">' +
+								escape.entities(text) +
+								'</a>'
 							);
 						} else {
 							editor.execCommand('createlink', url);
@@ -688,7 +694,9 @@ define(function (require) {
 				// if there is HTML passed set end to null so any selected
 				// text is replaced
 				if (html) {
-					author = (author ? '<cite>' + author + '</cite>' : '');
+					author = (author ? '<cite>' +
+						escape.entities(author) +
+					'</cite>' : '');
 					before = before + author + html + end;
 					end    = null;
 				// if not add a newline to the end of the inserted quote
