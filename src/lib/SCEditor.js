@@ -599,7 +599,7 @@
 				.on('reset', handleFormReset)
 				.submit(base.updateOriginal);
 
-			$(window)
+			$globalDoc
 				.on('unload', base.updateOriginal);
 
 			$globalWin.on('resize orientationChanged', handleWindowResize);
@@ -696,13 +696,6 @@
 
 							updateActiveButtons();
 							return false;
-						});
-
-					// Prevent editor losing focus when button clicked
-					$button
-						.on('mousedown', function (e) {
-							base.closeDropDown();
-							e.preventDefault();
 						});
 
 					if (command.tooltip) {
@@ -1444,7 +1437,7 @@
 				.off('reset', handleFormReset)
 				.off('submit', base.updateOriginal);
 
-			$(window)
+			$globalDoc
 				.off('unload', base.updateOriginal);
 
 			$wysiwygBody.off();
