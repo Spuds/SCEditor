@@ -536,7 +536,9 @@ define(function (require) {
 							attrs += ' height="' + parseInt(height, 10) + '"';
 						}
 
-						attrs += ' src="' + escape.entities(url) + '"';
+						attrs += ' src="' +
+							escape.uriScheme(escape.entities(url,true)) +
+							'"';
 
 						editor.wysiwygEditorInsertHtml(
 							'<img' + attrs + ' />'
@@ -591,9 +593,8 @@ define(function (require) {
 						if (!editor.getRangeHelper().selectedHtml() || text) {
 							editor.wysiwygEditorInsertHtml(
 								'<a href="' +
-								'mailto:' + escape.entities(email) + '">' +
-								escape.entities((text || email)) +
-								'</a>'
+								'mailto:' + escape.entities(email, true) +
+								'">' + escape.entities((text || email)) + '</a>'
 							);
 						} else {
 							editor.execCommand('createlink', 'mailto:' + email);
@@ -651,8 +652,9 @@ define(function (require) {
 						if (!editor.getRangeHelper().selectedHtml() || text) {
 							text = text || url;
 
+							url = escape.uriScheme(escape.entities(url, true));
 							editor.wysiwygEditorInsertHtml(
-								'<a href="' + escape.entities(url) + '">' +
+								'<a href="' + url + '">' +
 								escape.entities(text) +
 								'</a>'
 							);
