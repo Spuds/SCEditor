@@ -276,7 +276,7 @@
 			handleText,
 			output,
 			canIndent;
-// TODO: use escape.entities
+		// TODO: use escape.entities
 		/**
 		 * Escapes XHTML entities
 		 *

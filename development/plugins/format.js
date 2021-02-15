@@ -118,7 +118,7 @@
 
 					return false;
 				})
-				.appendTo($content);
+					.appendTo($content);
 			});
 
 			editor.createDropDown(caller, 'format', $content);

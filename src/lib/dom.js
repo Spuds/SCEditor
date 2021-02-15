@@ -469,7 +469,7 @@ define(function (require) {
 					$elm.is('hr') || $elm.is('th')) {
 					return '';
 				}
-// check all works with changes and merge with prev?
+				// check all works with changes and merge with prev?
 				// IE changes text-align to the same as the current direction
 				// so skip unless its not the same
 				if ((/right/i.test(styleValue) && direction === 'rtl') ||
