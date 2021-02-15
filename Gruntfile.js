@@ -158,22 +158,24 @@ module.exports = (grunt) => {
 			build: {
 				entry: './src/jquery.sceditor.js',
 				output: {
-					path: './minified/',
+					path: __dirname + '/minified/',
 					filename: 'jquery.sceditor.min.js'
 				},
 				externals: {
 					jquery: 'jQuery'
-				}
+				},
+				mode: 'production'
 			},
 			dist: {
 				entry: './src/jquery.sceditor.js',
 				output: {
-					path: './dist/development/',
+					path: __dirname + '/dist/development/',
 					filename: 'jquery.sceditor.js'
 				},
 				externals: {
 					jquery: 'jQuery'
-				}
+				},
+				mode: 'none'
 			}
 		},
 
