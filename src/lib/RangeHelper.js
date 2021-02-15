@@ -12,7 +12,6 @@ define(function (require) {
 	// causes a line break. In all other browsers it's collapsed.
 	var IE_BR_FIX = IE_VER && IE_VER < 11;
 
-
 	/**
 	 * Gets the text, start/end node and offset for
 	 * length chars left or right of the passed node

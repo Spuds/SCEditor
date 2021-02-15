@@ -1763,10 +1763,10 @@
 				// Skips selection makers and ignored elements
 				// Skip empty inline elements
 				while (previousSibling &&
-						previousSibling.nodeType === 1 &&
-						!$(previousSibling).is('br') &&
-						isInline(previousSibling, true) &&
-						!previousSibling.firstChild) {
+					previousSibling.nodeType === 1 &&
+					!$(previousSibling).is('br') &&
+					isInline(previousSibling, true) &&
+					!previousSibling.firstChild) {
 					previousSibling = previousSibling.previousSibling;
 				}
 
@@ -1796,7 +1796,7 @@
 				// <block>text<block>text</block></block>
 				//
 				// The second opening <block> opening tag should cause a
-				// line break because the previous sibing is inline.
+				// line break because the previous sibling is inline.
 				if (tag !== 'br' && previousSibling &&
 					!$(previousSibling).is('br') &&
 					isInline(previousSibling, true)) {

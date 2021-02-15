@@ -594,7 +594,7 @@ define([
 		sel.setSingleRange(range);
 
 		assert.strictEqual(rangeHelper.getOuterText(false, 25),
-				'The quick brown fox jumps');
+			'The quick brown fox jumps');
 	});
 
 

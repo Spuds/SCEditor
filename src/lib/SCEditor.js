@@ -46,7 +46,7 @@
 				wrapper = null;
 			}
 		}, false, true);
-	};
+	}
 
 	/**
 	 * SCEditor - A lightweight WYSIWYG editor
@@ -1175,7 +1175,7 @@
 				if (save !== false) {
 					options.width = width;
 				}
-// This is the problem
+				// This is the problem
 				if (height === false) {
 					height = $editorContainer.height();
 					save   = false;
@@ -1538,7 +1538,7 @@
 
 				// don't close if its a click on the command button
 				if (typeof $(e.target).parent()
-						.data('sceditorCommand') === 'undefined') {
+					.data('sceditorCommand') === 'undefined') {
 					base.closeDropDown();
 				}
 			}
@@ -1583,7 +1583,7 @@
 				}
 				// Call plugins here with file?
 				data.text = data['text/plain'];
-				data.html = data['text/html'];
+				data.html = escape.entities(data['text/html']);
 
 				handlePasteData(data);
 			// If contentsFragment exists then we are already waiting for a
@@ -1610,7 +1610,7 @@
 
 					rangeHelper.restoreRange();
 
-					handlePasteData({ html: html });
+					handlePasteData({ html: escape.entities(html) });
 				}, 0);
 			}
 		};
@@ -1626,7 +1626,8 @@
 			pluginManager.call('pasteRaw', data);
 
 			if (data.html) {
-				pastearea.innerHTML = data.html;
+				// Sanitize again in case plugins modified the HTML
+				pastearea.innerHTML = escape.entities(data.html);
 
 				// fix any invalid nesting
 				dom.fixNesting(pastearea);
@@ -1704,8 +1705,8 @@
 
 			base.focus();
 
-// TODO: This code tag should be configurable and
-// should maybe convert the HTML into text instead
+			// TODO: This code tag should be configurable and
+			// should maybe convert the HTML into text instead
 			// Don't apply to code elements
 			if (!overrideCodeBlocking && ($(currentBlockNode).is('code') ||
 				$(currentBlockNode).parents('code').length !== 0)) {
@@ -2011,7 +2012,7 @@
 
 				start += html + end;
 			}
-// TODO: This filter should allow empty tags as it's inserting.
+			// TODO: This filter should allow empty tags as it's inserting.
 			if (filter !== false && pluginManager.hasHandler('toWysiwyg')) {
 				start = pluginManager.callOnlyFirst('toWysiwyg', start, true);
 			}
@@ -2169,7 +2170,7 @@
 		 * @private
 		 */
 		replaceEmoticons = function (node) {
-// TODO: Make this tag configurable.
+			// TODO: Make this tag configurable.
 			if (!options.emoticonsEnabled || $(node).parents('code').length) {
 				return;
 			}
@@ -2184,9 +2185,9 @@
 					options.emoticons.dropdown,
 					options.emoticons.hidden
 				);
-// TODO: cache the emoticonCodes and emoticonCodes objects and share them with
-// the AYT converstion
 
+			// TODO: cache the emoticonCodes and emoticonCodes objects
+			//  and share them with the AYT converstion
 			$.each(emoticons, function (key) {
 				if (options.emoticonsCompat) {
 					emoticonRegex[key] = new RegExp(
@@ -2204,7 +2205,7 @@
 				return a.length - b.length;
 			});
 
-// TODO: tidy below
+			// TODO: tidy below
 			var convertEmoticons = function (node) {
 				node = node.firstChild;
 
@@ -2216,7 +2217,7 @@
 
 					// All none textnodes
 					if (node.nodeType !== 3) {
-// TODO: Make this tag configurable.
+						// TODO: Make this tag configurable.
 						if (!$(node).is('code')) {
 							convertEmoticons(node);
 						}
@@ -2429,7 +2430,7 @@
 
 			base.focus();
 
-// TODO: make configurable
+			// TODO: make configurable
 			// don't apply any commands to code elements
 			if ($parentNode.is('code') ||
 				$parentNode.parents('code').length !== 0) {
@@ -3117,7 +3118,7 @@
 				cachePos       = 0,
 				emoticonsCache = base.emoticonsCache,
 				curChar        = String.fromCharCode(e.which);
-// TODO: Make configurable
+			// TODO: Make configurable
 			if ($(currentBlockNode).is('code') ||
 				$(currentBlockNode).parents('code').length) {
 				return;

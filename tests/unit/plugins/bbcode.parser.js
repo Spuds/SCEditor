@@ -791,7 +791,7 @@ define([
 	test('URL', function (assert) {
 		assert.htmlEqual(
 			this.parser.toHTML('[url=http://test.com/]test[/url]'),
-				'<div><a href="http://test.com/">test</a></div>\n',
+			'<div><a href="http://test.com/">test</a></div>\n',
 			'Normal'
 		);
 
