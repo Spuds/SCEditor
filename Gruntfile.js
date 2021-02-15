@@ -330,23 +330,7 @@ module.exports = (grunt) => {
 				]
 			}
 		},
-
-		githooks: {
-			all: {
-				'pre-commit': 'test'
-			}
-		},
-
-		devUpdate: {
-			main: {
-				options: {
-					updateType: 'force',
-					semver: false
-				}
-			}
-		}
 	});
-
 
 	grunt.loadNpmTasks('grunt-postcss');
 	grunt.loadNpmTasks('grunt-contrib-clean');
@@ -361,9 +345,6 @@ module.exports = (grunt) => {
 	grunt.loadNpmTasks('grunt-saucelabs');
 	grunt.loadNpmTasks('grunt-webpack');
 	grunt.loadNpmTasks('grunt-eslint');
-	grunt.loadNpmTasks('grunt-githooks');
-	grunt.loadNpmTasks('grunt-dev-update');
-
 
 	grunt.registerTask('default', ['test']);
 
