@@ -637,7 +637,8 @@ define(function (require) {
 				editor.createDropDown(caller, 'insertlink', content);
 			},
 			exec: function (caller) {
-				var editor = this;
+				var editor = this,
+					safelinks = 'target="_blank" rel="noopener noreferrer"';
 
 				defaultCmds.link._dropDown(
 					editor,
@@ -654,12 +655,14 @@ define(function (require) {
 
 							url = escape.uriScheme(escape.entities(url, true));
 							editor.wysiwygEditorInsertHtml(
-								'<a href="' + url + '">' +
-								escape.entities(text) +
-								'</a>'
+								'<a ' + safelinks + ' href="' + url + '">' +
+								escape.entities(text) + '</a>'
 							);
 						} else {
-							editor.execCommand('createlink', url);
+							editor.wysiwygEditorInsertHtml(
+								'<a ' + safelinks + ' href="' +
+								url + '">', '</a>'
+							);
 						}
 					}
 				);
