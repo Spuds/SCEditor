@@ -1583,7 +1583,7 @@
 				}
 				// Call plugins here with file?
 				data.text = data['text/plain'];
-				data.html = escape.entities(data['text/html']);
+				data.html = data['text/html'];
 
 				handlePasteData(data);
 			// If contentsFragment exists then we are already waiting for a
@@ -1610,7 +1610,7 @@
 
 					rangeHelper.restoreRange();
 
-					handlePasteData({ html: escape.entities(html) });
+					handlePasteData({ html: html });
 				}, 0);
 			}
 		};
@@ -1626,8 +1626,7 @@
 			pluginManager.call('pasteRaw', data);
 
 			if (data.html) {
-				// Sanitize again in case plugins modified the HTML
-				pastearea.innerHTML = escape.entities(data.html);
+				pastearea.innerHTML = data.html;
 
 				// fix any invalid nesting
 				dom.fixNesting(pastearea);

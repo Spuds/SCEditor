@@ -13,7 +13,7 @@
  */
 /*global prompt: true*/
 /*eslint max-depth: off*/
-// TODO: Tidy this code up and consider seperating the BBCode parser into a
+// TODO: Tidy this code up and consider separating the BBCode parser into a
 // standalone module that can be used with other JS/NodeJS
 (function ($, window, document) {
 	'use strict';
